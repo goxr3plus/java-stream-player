@@ -20,7 +20,7 @@
      notices that are currently in this file, and this list of conditions without
      modification.
  */
-package streamplayer;
+package main.java.goxr3plus.javastreamplayer.stream;
 
 import java.util.List;
 import java.util.concurrent.Callable;

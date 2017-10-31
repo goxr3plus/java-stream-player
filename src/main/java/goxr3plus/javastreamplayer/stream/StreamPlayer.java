@@ -8,7 +8,7 @@
  * and this list of conditions without modification.
  */
 
-package streamplayer;
+package main.java.goxr3plus.javastreamplayer.stream;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import org.tritonus.share.sampled.TAudioFormat;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
 import javazoom.spi.PropertiesContainer;
-import streamplayer.StreamPlayerException.PlayerException;
+import main.java.goxr3plus.javastreamplayer.stream.StreamPlayerException.PlayerException;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under JSE 1.8.x.

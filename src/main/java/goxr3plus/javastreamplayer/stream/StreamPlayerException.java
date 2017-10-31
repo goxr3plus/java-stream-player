@@ -21,7 +21,7 @@
      modification.
  */
 
-package streamplayer;
+package main.java.goxr3plus.javastreamplayer.stream;
 
 import java.io.PrintStream;
 import java.io.PrintWriter;
