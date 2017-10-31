@@ -28,9 +28,9 @@ public class Tester extends StreamPlayer implements StreamPlayerListener {
 			addStreamPlayerListener(this);
 			
 			// Open a File
-			//open(new File("...")); //..Here must be the file absolute path 
+			//open(new File("...")) //..Here must be the file absolute path 
 			//open(INPUTSTREAM)
-			//open(AUDIOURL);
+			//open(AUDIOURL)
 			
 			//Example
 			open(new File("C:\\Users\\GOXR3PLUS\\Desktop\\10 Heavy BBOY Tracks That Will Give You More Energy and Power!.mp3")); //..Here must be the file absolute path 
@@ -63,6 +63,12 @@ public class Tester extends StreamPlayer implements StreamPlayerListener {
 	public void progress(int nEncodedBytes , long microsecondPosition , byte[] pcmData , Map<String,Object> properties) {
 		
 		System.out.println("Encoded Bytes : " + nEncodedBytes);
+		
+		//Current time position in seconds:) by GOXR3PLUS STUDIO
+		//This is not the more precise way ... in XR3Player i am using different techniques .
+		//Just for demostration purposes :)
+		//I will add more advanced techniques with milliseconds , microseconds , hours and minutes soon
+		System.out.println("Current time is : " + (int) ( microsecondPosition / 1000000 ) + " seconds");		
 	}
 	
 	/*
