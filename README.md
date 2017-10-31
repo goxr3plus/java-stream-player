@@ -6,14 +6,14 @@ Java Audio Controller Library with (seek,start,stop,pause,play,restart features)
 This is a continuation and full improvement of [JavaZoom BasicPlayer](http://www.javazoom.net/jlgui/api.html)
 
 ### What audio formats it supports?
-It supports WAV, AU, AIFF, MP3, OGG VORBIS, FLAC, MONKEY's AUDIO and SPEEX audio formats , using some external libraries . Although more will be added in future releases.
+It supports **WAV, AU, AIFF, MP3, OGG VORBIS, FLAC, MONKEY's AUDIO and SPEEX audio formats** , using some external libraries . Although more will be added in future releases.
 
 ### Add it to your project using JitPack :
 
 https://jitpack.io/private#goxr3plus/java-stream-player
 
 ### Step 1. Add the JitPack repository to your build file
-```
+``` XML
 <repositories>
 	<repository>
 	   <id>jitpack.io</id>
@@ -23,11 +23,11 @@ https://jitpack.io/private#goxr3plus/java-stream-player
 ```
 
 ###  Step 2. Add the dependency
-```
+``` XML
 <dependency>
    <groupId>com.github.goxr3plus</groupId>
    <artifactId>java-stream-player</artifactId>
-   <version>V1.0.0</version>
+   <version>V1.1.0</version>
 </dependency>
 ```
 
