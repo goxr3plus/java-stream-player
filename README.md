@@ -8,6 +8,16 @@ This is a continuation and full improvement of [JavaZoom BasicPlayer](http://www
 ### What audio formats it supports?
 It supports **WAV, AU, AIFF, MP3, OGG VORBIS, FLAC, MONKEY's AUDIO and SPEEX audio formats** , using some external libraries . Although more will be added in future releases.
 
+## --Maven Build--
+
+### Maven Clean Package [ With Javadocs produced ]
+
+```mvn clean package``` 
+
+### Maven Clean Package [ No Javadocs produced ]
+
+```mvn -Dmaven.javadoc.skip=true clean package```
+
 ### Add it to your project using JitPack :
 
 https://jitpack.io/private#goxr3plus/java-stream-player
