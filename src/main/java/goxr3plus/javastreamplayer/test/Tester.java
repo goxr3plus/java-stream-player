@@ -33,7 +33,7 @@ public class Tester extends StreamPlayer implements StreamPlayerListener {
 			//open(AUDIOURL)
 			
 			//Example
-			//open(new File("C:\\Users\\GOXR3PLUS\\Desktop\\10 Heavy BBOY Tracks That Will Give You More Energy and Power!.mp3")); //..Here must be the file absolute path 
+			open(new File("C:\\Users\\GOXR3PLUS\\Desktop\\10 Heavy BBOY Tracks That Will Give You More Energy and Power!.mp3")); //..Here must be the file absolute path 
 			
 			// Play it
 			play();
