@@ -1,3 +1,5 @@
+[![HitCount](http://hits.dwyl.io/goxr3plus/java-stream-player.svg)](http://hits.dwyl.io/goxr3plus/java-stream-player)
+
 ## THIS LIBRARY NEEDS JAVA 8++ 
 
 # java-stream-player
