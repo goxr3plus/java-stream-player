@@ -1,17 +1,14 @@
-# Looking for a ffmpeg wrapper in Java , check this -> [jave2](https://github.com/goxr3plus/jave2) , currently updating it :)
 
 [![HitCount](http://hits.dwyl.io/goxr3plus/java-stream-player.svg)](http://hits.dwyl.io/goxr3plus/java-stream-player)
-
-### Keep the bro alive :)
-
 <a href="https://patreon.com/preview/8adae1b75d654b2899e04a9e1111f0eb" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a>
 <a href="https://www.paypal.me/GOXR3PLUSCOMPANY" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" /></a>
 
-
-## THIS LIBRARY NEEDS JAVA 8++ 
-
-# java-stream-player
+# Java-stream-player
 Java Audio Controller Library with (seek,start,stop,pause,play,restart features)
+
+### Looking for a ffmpeg wrapper in Java
+> Check this -> [jave2](https://github.com/goxr3plus/jave2) , currently updating it :)
+
 
 This is a continuation and full improvement of [JavaZoom BasicPlayer](http://www.javazoom.net/jlgui/api.html)
 
@@ -23,10 +20,6 @@ It supports **WAV, AU, AIFF, MP3, OGG VORBIS, FLAC, MONKEY's AUDIO and SPEEX aud
 ### Maven Clean Package [ With Javadocs produced ]
 
 ```mvn clean package``` 
-
-### Maven Clean Package [ No Javadocs produced ]
-
-```mvn -Dmaven.javadoc.skip=true clean package```
 
 ### Add it to your project using JitPack :
 
@@ -47,7 +40,7 @@ https://jitpack.io/private#goxr3plus/java-stream-player
 <dependency>
    <groupId>com.github.goxr3plus</groupId>
    <artifactId>java-stream-player</artifactId>
-   <version>V1.1.0</version>
+   <version>V8.0.0</version>
 </dependency>
 ```
 
