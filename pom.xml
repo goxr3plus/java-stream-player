@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.github.goxr3plus</groupId>
 	<artifactId>java-stream-player</artifactId>
-	<version>1.1.0</version>
+	<version>8.0.0</version>
 
 
 	<properties>
@@ -72,12 +73,14 @@
 	<!-- Dependencies -->
 
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
 		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>3.8.2</version>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.4.0-M1</version>
 			<scope>test</scope>
 		</dependency>
+
 		<!-- AUDIO SUPPORT -->
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
@@ -99,6 +102,12 @@
 			<artifactId>tritonus-share</artifactId>
 			<version>0.3.7.4</version>
 		</dependency>
+		<dependency>
+			<groupId>com.googlecode.soundlibs</groupId>
+			<artifactId>tritonus-all</artifactId>
+			<version>0.3.7.2</version>
+		</dependency>
+
 		<!-- AUDIO EXPERIMENTAL TESTS -->
 		<!-- <dependency> <groupId>com.googlecode.soundlibs</groupId> <artifactId>tritonus-all</artifactId> 
 			<version>0.3.7.2</version> </dependency> -->
