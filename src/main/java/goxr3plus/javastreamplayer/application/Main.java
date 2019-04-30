@@ -1,11 +1,12 @@
 package goxr3plus.javastreamplayer.application;
 /**
- * 
+ *
  */
 
 import java.io.File;
 import java.util.Map;
 
+import goxr3plus.javastreamplayer.stream.Status;
 import goxr3plus.javastreamplayer.stream.StreamPlayer;
 import goxr3plus.javastreamplayer.stream.StreamPlayerEvent;
 import goxr3plus.javastreamplayer.stream.StreamPlayerException;
@@ -17,7 +18,7 @@ import goxr3plus.javastreamplayer.stream.StreamPlayerListener;
  */
 public class Main extends StreamPlayer implements StreamPlayerListener {
 
-	private  final String audioAbsolutePath = "Logic - Ballin [Bass Boosted].mp3";
+	private final String audioAbsolutePath = "Logic - Ballin [Bass Boosted].mp3";
 
 	/**
 	 * Constructor
@@ -45,47 +46,72 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see streamplayer.StreamPlayerListener#opened(java.lang.Object,
-	 * java.util.Map)
-	 */
 	@Override
 	public void opened(final Object dataSource, final Map<String, Object> properties) {
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see streamplayer.StreamPlayerListener#progress(int, long, byte[],
-	 * java.util.Map)
-	 */
 	@Override
 	public void progress(final int nEncodedBytes, final long microsecondPosition, final byte[] pcmData,
-			final Map<String, Object> properties) {
+		final Map<String, Object> properties) {
 
 		System.out.println("Encoded Bytes : " + nEncodedBytes);
 
 		// Current time position in seconds:) by GOXR3PLUS STUDIO
-		// This is not the more precise way ... in XR3Player i am using different
-		// techniques .
+		// This is not the more precise way ...
+		// in XR3Player i am using different techniques .
+		//https://github.com/goxr3plus/XR3Player
 		// Just for demostration purposes :)
 		// I will add more advanced techniques with milliseconds , microseconds , hours
 		// and minutes soon
-		System.out.println("Current time is : " + (int) (microsecondPosition / 1000000) + " seconds");
+
+		// .MP3 OR .WAV
+		final String extension = "mp3"; //THE SAMPLE Audio i am using is .MP3 SO ... :)
+
+		long totalBytes = getTotalBytes();
+		if ("mp3".equals(extension) || "wav".equals(extension)) {
+
+			// Calculate the progress until now
+			double progress = (nEncodedBytes > 0 && totalBytes > 0)
+				? (nEncodedBytes * 1.0f / totalBytes * 1.0f)
+				: -1.0f;
+			// System.out.println(progress*100+"%")
+
+			System.out.println("Seconds  : " + (int) (microsecondPosition / 1000000) + " s " + "Progress: [ " + progress * 100 + " ] %");
+			System.out.println();
+
+			// .WHATEVER MUSIC FILE*
+		} else
+			System.out.println("Current time is : " + (int) (microsecondPosition / 1000000) + " seconds");
+
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see streamplayer.StreamPlayerListener#statusUpdated(streamplayer.
-	 * StreamPlayerEvent)
-	 */
 	@Override
-	public void statusUpdated(final StreamPlayerEvent event) {
-		System.out.println(event.getPlayerStatus());
+	public void statusUpdated(final StreamPlayerEvent streamPlayerEvent) {
+
+		// Player status
+		final Status status = streamPlayerEvent.getPlayerStatus();
+		System.out.println(streamPlayerEvent.getPlayerStatus());
+
+		//Examples
+
+		if (status == Status.OPENED) {
+
+		} else if (status == Status.OPENING) {
+
+		} else if (status == Status.RESUMED) {
+
+		} else if (status == Status.PLAYING) {
+
+		} else if (status == Status.STOPPED) {
+
+		} else if (status == Status.SEEKING) {
+
+		} else if (status == Status.SEEKED) {
+
+		}
+
+		//etc... SEE XR3PLAYER https://github.com/goxr3plus/XR3Player for advanced examples
 	}
 
 	public static void main(final String[] args) {

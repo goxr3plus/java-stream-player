@@ -67,7 +67,6 @@ public class StreamPlayer implements Callable<Void> {
 
 	// -------------------AUDIO---------------------
 
-	/** @SEE streamplayer.Status */
 	private volatile Status status = Status.NOT_SPECIFIED;
 
 	/** The data source. */
