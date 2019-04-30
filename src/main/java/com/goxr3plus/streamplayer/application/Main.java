@@ -1,4 +1,4 @@
-package com.goxr3plus.javastreamplayer.application;
+package com.goxr3plus.streamplayer.application;
 /**
  *
  */
@@ -6,11 +6,11 @@ package com.goxr3plus.javastreamplayer.application;
 import java.io.File;
 import java.util.Map;
 
-import com.goxr3plus.javastreamplayer.stream.Status;
-import com.goxr3plus.javastreamplayer.stream.StreamPlayer;
-import com.goxr3plus.javastreamplayer.stream.StreamPlayerListener;
-import com.goxr3plus.javastreamplayer.stream.StreamPlayerEvent;
-import com.goxr3plus.javastreamplayer.stream.StreamPlayerException;
+import com.goxr3plus.streamplayer.stream.Status;
+import com.goxr3plus.streamplayer.stream.StreamPlayer;
+import com.goxr3plus.streamplayer.stream.StreamPlayerListener;
+import com.goxr3plus.streamplayer.stream.StreamPlayerEvent;
+import com.goxr3plus.streamplayer.stream.StreamPlayerException;
 
 /**
  * @author GOXR3PLUS
