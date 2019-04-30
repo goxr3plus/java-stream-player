@@ -22,7 +22,7 @@
  */
 
 
-package goxr3plus.javastreamplayer.stream;
+package com.goxr3plus.javastreamplayer.stream;
 
 
 /**

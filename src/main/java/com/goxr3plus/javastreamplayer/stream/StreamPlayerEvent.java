@@ -20,7 +20,7 @@
      notices that are currently in this file, and this list of conditions without
      modification.
  */
-package goxr3plus.javastreamplayer.stream;
+package com.goxr3plus.javastreamplayer.stream;
 
 
 /**
@@ -65,7 +65,7 @@ public class StreamPlayerEvent {
      * Returns the Player Status
      *
      * @return The player Status (paused,playing,...)
-     * @see goxr3plus.javastreamplayer.stream.Status
+     * @see Status
      */
     public Status getPlayerStatus() {
 	return playerStatus;
