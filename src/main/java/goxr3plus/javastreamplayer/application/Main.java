@@ -1,4 +1,4 @@
-package main.java.goxr3plus.javastreamplayer.application;
+package goxr3plus.javastreamplayer.application;
 /**
  * 
  */
@@ -6,10 +6,10 @@ package main.java.goxr3plus.javastreamplayer.application;
 import java.io.File;
 import java.util.Map;
 
-import main.java.goxr3plus.javastreamplayer.stream.StreamPlayer;
-import main.java.goxr3plus.javastreamplayer.stream.StreamPlayerEvent;
-import main.java.goxr3plus.javastreamplayer.stream.StreamPlayerException;
-import main.java.goxr3plus.javastreamplayer.stream.StreamPlayerListener;
+import goxr3plus.javastreamplayer.stream.StreamPlayer;
+import goxr3plus.javastreamplayer.stream.StreamPlayerEvent;
+import goxr3plus.javastreamplayer.stream.StreamPlayerException;
+import goxr3plus.javastreamplayer.stream.StreamPlayerListener;
 
 /**
  * @author GOXR3PLUS
@@ -17,8 +17,7 @@ import main.java.goxr3plus.javastreamplayer.stream.StreamPlayerListener;
  */
 public class Main extends StreamPlayer implements StreamPlayerListener {
 
-	private final String basePath = "C:\\Users\\GOXR3PLUSSTUDIO\\Desktop\\";
-	private  final String audioAbsolutePath = basePath + "DJ WhiteO - Break Hard [mixtape]  .stance.mp3";
+	private  final String audioAbsolutePath = "Logic - Ballin [Bass Boosted].mp3";
 
 	/**
 	 * Constructor

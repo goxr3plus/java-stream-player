@@ -8,7 +8,7 @@
  * and this list of conditions without modification.
  */
 
-package main.java.goxr3plus.javastreamplayer.stream;
+package goxr3plus.javastreamplayer.stream;
 
 import java.io.File;
 import java.io.IOException;
@@ -48,7 +48,7 @@ import org.tritonus.share.sampled.TAudioFormat;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
 import javazoom.spi.PropertiesContainer;
-import main.java.goxr3plus.javastreamplayer.stream.StreamPlayerException.PlayerException;
+import goxr3plus.javastreamplayer.stream.StreamPlayerException.PlayerException;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under Java 10
@@ -174,7 +174,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Freeing the resources.
 	 */
-	private void reset() {
+	public void reset() {
 
 		// Close the stream
 		synchronized (audioLock) {

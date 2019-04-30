@@ -1,4 +1,4 @@
-package main.java.goxr3plus.javastreamplayer.stream;
+package goxr3plus.javastreamplayer.stream;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
