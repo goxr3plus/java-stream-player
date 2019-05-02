@@ -101,10 +101,6 @@
 			<artifactId>tritonus-all</artifactId>
 			<version>0.3.7.2</version>
 		</dependency>
-
-		<!-- AUDIO EXPERIMENTAL TESTS -->
-		<!-- <dependency> <groupId>com.googlecode.soundlibs</groupId> <artifactId>tritonus-all</artifactId> 
-			<version>0.3.7.2</version> </dependency> -->
 	</dependencies>
 
 </project>
