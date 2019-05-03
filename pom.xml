@@ -100,6 +100,16 @@
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>tritonus-all</artifactId>
 			<version>0.3.7.2</version>
+            <exclusions>
+				<exclusion>
+                    <!--
+                        Exclude tritonus-share because its all contents is contained in tritonus-all and
+                        this dependency simply causes nothing but package split
+                    -->
+					<groupId>com.googlecode.soundlibs</groupId>
+					<artifactId>tritonus-share</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
