@@ -85,6 +85,16 @@
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>mp3spi</artifactId>
 			<version>1.9.5.4</version>
+			<exclusions>
+				<exclusion>
+					<!--
+                        Exclude tritonus-share because its all contents is contained in tritonus-all and
+                        this dependency simply causes nothing but package split
+                    -->
+					<groupId>com.googlecode.soundlibs</groupId>
+					<artifactId>tritonus-share</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jflac</groupId>
@@ -102,10 +112,6 @@
 			<version>0.3.7.2</version>
             <exclusions>
 				<exclusion>
-                    <!--
-                        Exclude tritonus-share because its all contents is contained in tritonus-all and
-                        this dependency simply causes nothing but package split
-                    -->
 					<groupId>com.googlecode.soundlibs</groupId>
 					<artifactId>tritonus-share</artifactId>
 				</exclusion>
