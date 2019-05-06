@@ -53,10 +53,22 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>3.7.0</version>
-				<configuration>
+				<!-- <configuration>
 					<source>1.8</source>
 					<target>1.8</target>
 					<encoding>UTF-8</encoding>
+				</configuration> -->
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+				<version>3.1.1</version>
+				<configuration>
+					<archive>
+						<manifestEntries>
+							<Automatic-Module-Name>com.goxr3plus.streamplayer</Automatic-Module-Name>
+						</manifestEntries>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -85,6 +97,16 @@
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>mp3spi</artifactId>
 			<version>1.9.5.4</version>
+			<exclusions>
+				<exclusion>
+					<!--
+						Exclude tritonus-share because its all contents is contained in tritonus-all and
+						this dependency simply causes nothing but package split
+					-->
+					<groupId>com.googlecode.soundlibs</groupId>
+					<artifactId>tritonus-share</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.jflac</groupId>
@@ -100,6 +122,12 @@
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>tritonus-all</artifactId>
 			<version>0.3.7.2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.googlecode.soundlibs</groupId>
+					<artifactId>tritonus-share</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 	</dependencies>
 
