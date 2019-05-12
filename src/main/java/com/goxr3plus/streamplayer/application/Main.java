@@ -6,7 +6,7 @@ package com.goxr3plus.streamplayer.application;
 import java.io.File;
 import java.util.Map;
 
-import com.goxr3plus.streamplayer.stream.Status;
+import com.goxr3plus.streamplayer.enums.Status;
 import com.goxr3plus.streamplayer.stream.StreamPlayer;
 import com.goxr3plus.streamplayer.stream.StreamPlayerListener;
 import com.goxr3plus.streamplayer.stream.StreamPlayerEvent;
@@ -37,8 +37,16 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 
 			// Example
 			open(new File(audioAbsolutePath));
+
+			//Seek
+//			seek(500000L);
+			seekTo(243);
+
 			// Play it
 			play();
+			//pause();
+
+
 
 		} catch (final StreamPlayerException ex) {
 			ex.printStackTrace();
@@ -52,10 +60,9 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 	}
 
 	@Override
-	public void progress(final int nEncodedBytes, final long microsecondPosition, final byte[] pcmData,
-		final Map<String, Object> properties) {
+	public void progress(final int nEncodedBytes, final long microsecondPosition, final byte[] pcmData,final Map<String, Object> properties) {
 
-		System.out.println("Encoded Bytes : " + nEncodedBytes);
+//		System.out.println("Encoded Bytes : " + nEncodedBytes);
 
 		// Current time position in seconds:) by GOXR3PLUS STUDIO
 		// This is not the more precise way ...
@@ -77,12 +84,13 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 				: -1.0f;
 			// System.out.println(progress*100+"%")
 
-			System.out.println("Seconds  : " + (int) (microsecondPosition / 1000000) + " s " + "Progress: [ " + progress * 100 + " ] %");
-			System.out.println();
+			//System.out.println("Seconds  : " + (int) (microsecondPosition / 1000000) + " s " + "Progress: [ " + progress * 100 + " ] %");
+			//System.out.println();
 
 			// .WHATEVER MUSIC FILE*
-		} else
-			System.out.println("Current time is : " + (int) (microsecondPosition / 1000000) + " seconds");
+		} else {
+			//System.out.println("Current time is : " + (int) (microsecondPosition / 1000000) + " seconds");
+		}
 
 	}
 
@@ -91,7 +99,7 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 
 		// Player status
 		final Status status = streamPlayerEvent.getPlayerStatus();
-		System.out.println(streamPlayerEvent.getPlayerStatus());
+		//System.out.println(streamPlayerEvent.getPlayerStatus());
 
 		//Examples
 

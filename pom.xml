@@ -84,6 +84,7 @@
 	<!-- Dependencies -->
 
 	<dependencies>
+
 		<!-- AUDIO SUPPORT -->
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
@@ -100,16 +101,19 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
 		<dependency>
 			<groupId>org.jflac</groupId>
 			<artifactId>jflac-codec</artifactId>
 			<version>1.5.2</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.github.trilarion</groupId>
 			<artifactId>vorbis-support</artifactId>
 			<version>1.1.0</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.googlecode.soundlibs</groupId>
 			<artifactId>tritonus-all</artifactId>
@@ -121,6 +125,21 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+		<!-- AUDIO TAG READERS -->
+		<dependency>
+			<groupId>com.github.goxr3plus</groupId>
+			<artifactId>jaudiotagger</artifactId>
+			<version>2.2.7</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+
 	</dependencies>
 
 </project>

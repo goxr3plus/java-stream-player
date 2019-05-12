@@ -22,7 +22,7 @@
  */
 
 
-package com.goxr3plus.streamplayer.stream;
+package com.goxr3plus.streamplayer.enums;
 
 
 /**

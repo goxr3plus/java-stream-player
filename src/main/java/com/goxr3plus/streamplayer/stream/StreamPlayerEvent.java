@@ -22,6 +22,7 @@
  */
 package com.goxr3plus.streamplayer.stream;
 
+import com.goxr3plus.streamplayer.enums.Status;
 
 /**
  * The Class StreamPlayerEvent.

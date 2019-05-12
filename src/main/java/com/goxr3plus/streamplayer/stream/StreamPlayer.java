@@ -47,7 +47,10 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.tritonus.share.sampled.TAudioFormat;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
+import com.goxr3plus.streamplayer.enums.AudioType;
+import com.goxr3plus.streamplayer.enums.Status;
 import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
+import com.goxr3plus.streamplayer.tools.TimeTool;
 
 import javazoom.spi.PropertiesContainer;
 
@@ -207,7 +210,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Notify listeners about a BasicPlayerEvent.
 	 *
-	 * @param playerStatus event code.
+	 * @param status event code.
 	 * @param encodedStreamPosition in the stream when the event occurs.
 	 * @param description the description
 	 *
@@ -666,105 +669,6 @@ public class StreamPlayer implements Callable<Void> {
 		}
 	}
 
-	// /**
-	// * Skip bytes in the File input stream. It will skip N frames matching to
-	// bytes, so it will never skip given bytes length exactly.
-	// *
-	// * @param bytes
-	// * the bytes
-	// * @return value bigger than 0 for File and value = 0 for URL and InputStream
-	// * @throws StreamPlayerException
-	// * the stream player exception
-	// */
-	// public long seek(long bytes) throws StreamPlayerException {
-	// long totalSkipped = 0;
-	//
-	// //FILE
-	// if (dataSource instanceof File) {
-	//
-	// //Check if the requested bytes are more than totalBytes of Audio
-	// long bytesLength = getTotalBytes();
-	// if ( ( bytesLength <= 0 ) || ( bytes >= bytesLength )) {
-	// generateEvent(Status.EOM, getEncodedStreamPosition(), null);
-	// return totalSkipped;
-	// }
-	//
-	// logger.info(() -> "Bytes to skip : " + bytes);
-	//
-	// //Keep previous status
-	// Status previousStatus = status;
-	// status = Status.SEEKING;
-	//
-	// try {
-	//
-	// //Lock
-	// //synchronized (audioLock) {
-	// generateEvent(Status.SEEKING, AudioSystem.NOT_SPECIFIED, null);
-	//
-	// //initAudioInputStream();
-	// if (audioInputStream != null) {
-	//
-	// long skipped = 0;
-	//
-	// System.out.println("Bytes :" + bytes);
-	// // Loop until bytes are really skipped.
-	// while (totalSkipped < bytes) { //totalSkipped <
-	// (bytes-SKIP_INACCURACY_SIZE)))
-	// System.out.println("Running...");
-	// skipped = audioInputStream.skip(bytes / 4);
-	// if (skipped == 0)
-	// break;
-	// totalSkipped += skipped;
-	// logger.info("Skipped : " + totalSkipped + "/" + bytes);
-	// if (totalSkipped == -1)
-	// throw new
-	// StreamPlayerException(StreamPlayerException.PlayerException.SKIP_NOT_SUPPORTED);
-	//
-	// logger.info("Skeeping:" + totalSkipped);
-	// }
-	//
-	// System.out.println("Skipped.... " + skipped);
-	//
-	// // // Loop until bytes are really skipped.
-	// // while (totalSkipped < bytes) { //totalSkipped <
-	// (bytes-SKIP_INACCURACY_SIZE)))
-	// // skipped = audioInputStream.skip(bytes - totalSkipped);
-	// // if (skipped == 0)
-	// // break;
-	// // totalSkipped += skipped;
-	// // logger.info("Skipped : " + totalSkipped + "/" + bytes);
-	// // if (totalSkipped == -1)
-	// // throw new
-	// StreamPlayerException(StreamPlayerException.PlayerException.SKIP_NOT_SUPPORTED);
-	// //
-	// // logger.info("Skeeping:" + totalSkipped);
-	// // }
-	// }
-	// //}
-	// // generateEvent(Status.SEEKED, getEncodedStreamPosition(), null);
-	// // status = Status.OPENED;
-	//
-	// System.out.println("PREVIOUS STATUS :" + previousStatus);
-	// if (previousStatus == Status.PLAYING) {
-	// //sourceDataLine.start();
-	// status = Status.PLAYING;
-	// generateEvent(Status.PLAYING, getEncodedStreamPosition(), null);
-	// //play();
-	// } else if (previousStatus == Status.PAUSED) {
-	// play();
-	// pause();
-	// status = Status.PAUSED;
-	// logger.info("pausePlayback() completed");
-	// generateEvent(Status.PAUSED, getEncodedStreamPosition(), null);
-	// }
-	//
-	// } catch (IOException ex) {
-	// logger.log(Level.WARNING, ex.getMessage(), ex);
-	// }
-	// }
-	// return totalSkipped;
-	// }
-
 	/**
 	 * Skip bytes in the File input stream. It will skip N frames matching to bytes,
 	 * so it will never skip given bytes len
@@ -831,29 +735,81 @@ public class StreamPlayer implements Callable<Void> {
 		return totalSkipped;
 	}
 
+//	/**
+//	 * Skip x seconds of audio
+//	 * See  {@link #seek(long)}
+//	 *
+//	 * @param seconds Seconds to Skip
+//	 */
+//	public void seekSeconds(int seconds) throws StreamPlayerException {
+//		long bytes = 0;
+//
+//		seek(bytes);
+//	}
+//
+//	/**
+//	 * Skip seconds of audio based on the pattern
+//	 * See  {@link #seek(long)}
+//	 *
+//	 * @param pattern A string in the format (HH:MM:SS) WHERE h = HOURS , M = minutes , S = seconds
+//	 */
+//	public void seek(String pattern) throws StreamPlayerException {
+//		long bytes = 0;
+//
+//		seek(bytes);
+//	}
+
 	/**
+	 * Go to X time of the Audio
 	 * See  {@link #seek(long)}
-	 * @param seconds
+	 *
+	 * @param seconds Seconds to Skip
 	 */
-	public void seek(int seconds) throws StreamPlayerException {
-		long bytes = 0;
+	public void seekTo(int seconds) throws StreamPlayerException {
+		try {
+			int durationInSeconds = this.getDurationInSeconds();
 
+			if (seconds < 0 || seconds >= durationInSeconds) {
+				throw new StreamPlayerException(PlayerException.SKIP_NOT_SUPPORTED);
+			}
 
+			//Calculate Bytes
+			double percentage = (seconds * 100) / durationInSeconds;
+			long totaBytes = getTotalBytes();
+			long seekBytes = (long) (totaBytes / (0.9936346345345345));
+			boolean b = seekBytes > totaBytes;
 
-
-		seek(bytes);
+			seek(this.getEncodedStreamPosition() + seekBytes);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
 	}
 
-	/**
-	 * See  {@link #seek(long)}
-	 * @param pattern A string in the format (HH:MM:SS) WHERE h = HOURS , M = minutes , S = seconds
-	 */
-	public void seek(String pattern) throws StreamPlayerException {
-		long bytes = 0;
+//	/**
+//	 * Go to X time of the Audio
+//	 * See  {@link #seek(long)}
+//	 *
+//	 * @param pattern A string in the format (HH:MM:SS) WHERE h = HOURS , M = minutes , S = seconds
+//	 */
+//	public void seekTo(String pattern) throws StreamPlayerException {
+//		long bytes = 0;
+//
+//		seek(bytes);
+//	}
 
+	public int getDurationInSeconds() {
 
+		// Audio resources from file||URL||inputStream.
+		if (dataSource instanceof File) {
+			return TimeTool.durationInSeconds(((File) dataSource).getAbsolutePath(), AudioType.FILE);
+		} else if (dataSource instanceof URL) { //todo
+			return -1;
+		} else if (dataSource instanceof InputStream) { //todo
+			return -1;
+		}
 
-		seek(bytes);
+		return -1;
+
 	}
 
 	/**

@@ -35,104 +35,100 @@ import java.io.PrintWriter;
 @SuppressWarnings("serial")
 public class StreamPlayerException extends Exception {
 
-    /**
-     * Type of exception.
-     *
-     * @author GOXR3PLUS
-     */
-    public enum PlayerException {
-
-	/** The gain control not supported. */
-	GAIN_CONTROL_NOT_SUPPORTED,
-	/** The pan control not supported. */
-	PAN_CONTROL_NOT_SUPPORTED,
-	/** The mute control not supported. */
-	MUTE_CONTROL_NOT_SUPPORTED,
-	/** The balance control not supported. */
-	BALANCE_CONTROL_NOT_SUPPORTED,
-	/** The wait error. */
-	WAIT_ERROR,
-	/** The can not init line. */
-	CAN_NOT_INIT_LINE,
 	/**
-	* LINE IS NOT SUPPORTED
-	*/
-	LINE_NOT_SUPPORTED,
-	/** The skip not supported. */
-	SKIP_NOT_SUPPORTED;
-    }
+	 * Type of exception.
+	 *
+	 * @author GOXR3PLUS
+	 */
+	public enum PlayerException {
 
-    /** The cause. */
-    private final Throwable cause;
-
-    /**
-     * Constructor.
-     *
-     * @param paramString
-     *            String Parameter
-     */
-    public StreamPlayerException(PlayerException paramString) {
-	super(paramString.toString());
-	cause = null;
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param paramThrowable
-     *            the param throwable
-     */
-    public StreamPlayerException(Throwable paramThrowable) {
-	cause = paramThrowable;
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param paramString
-     *            the param string
-     * @param paramThrowable
-     *            the param throwable
-     */
-    public StreamPlayerException(PlayerException paramString, Throwable paramThrowable) {
-	super(paramString.toString());
-	cause = paramThrowable;
-    }
-
-    @Override
-    public Throwable getCause() {
-	return cause;
-    }
-
-    @Override
-    public String getMessage() {
-
-	if (super.getMessage() != null)
-	    return super.getMessage();
-	else if (cause != null)
-	    return cause.toString();
-
-	return null;
-    }
-
-    @Override
-    public void printStackTrace() {
-	printStackTrace(System.err);
-    }
-
-    @Override
-    public void printStackTrace(PrintStream printStream) {
-	synchronized (printStream) {
-	    PrintWriter localPrintWriter = new PrintWriter(printStream, false);
-	    printStackTrace(localPrintWriter);
-	    localPrintWriter.flush();
+		/** The gain control not supported. */
+		GAIN_CONTROL_NOT_SUPPORTED,
+		/** The pan control not supported. */
+		PAN_CONTROL_NOT_SUPPORTED,
+		/** The mute control not supported. */
+		MUTE_CONTROL_NOT_SUPPORTED,
+		/** The balance control not supported. */
+		BALANCE_CONTROL_NOT_SUPPORTED,
+		/** The wait error. */
+		WAIT_ERROR,
+		/** The can not init line. */
+		CAN_NOT_INIT_LINE,
+		/**
+		 * LINE IS NOT SUPPORTED
+		 */
+		LINE_NOT_SUPPORTED,
+		/** The skip not supported. */
+		SKIP_NOT_SUPPORTED,
 	}
-    }
 
-    @Override
-    public void printStackTrace(PrintWriter printWriter) {
-	if (cause != null)
-	    cause.printStackTrace(printWriter);
+	/** The cause. */
+	private final Throwable cause;
 
-    }
+	/**
+	 * Constructor.
+	 *
+	 * @param paramString String Parameter
+	 */
+	public StreamPlayerException(PlayerException paramString) {
+		super(paramString.toString());
+		cause = null;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param paramThrowable the param throwable
+	 */
+	public StreamPlayerException(Throwable paramThrowable) {
+		cause = paramThrowable;
+	}
+
+	/**
+	 * Constructor.
+	 *
+	 * @param paramString the param string
+	 * @param paramThrowable the param throwable
+	 */
+	public StreamPlayerException(PlayerException paramString, Throwable paramThrowable) {
+		super(paramString.toString());
+		cause = paramThrowable;
+	}
+
+	@Override
+	public Throwable getCause() {
+		return cause;
+	}
+
+	@Override
+	public String getMessage() {
+
+		if (super.getMessage() != null)
+			return super.getMessage();
+		else if (cause != null)
+			return cause.toString();
+
+		return null;
+	}
+
+	@Override
+	public void printStackTrace() {
+		printStackTrace(System.err);
+	}
+
+	@Override
+	public void printStackTrace(PrintStream printStream) {
+		synchronized (printStream) {
+			PrintWriter localPrintWriter = new PrintWriter(printStream, false);
+			printStackTrace(localPrintWriter);
+			localPrintWriter.flush();
+		}
+	}
+
+	@Override
+	public void printStackTrace(PrintWriter printWriter) {
+		if (cause != null)
+			cause.printStackTrace(printWriter);
+
+	}
 }
