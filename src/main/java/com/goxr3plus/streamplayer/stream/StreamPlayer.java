@@ -765,24 +765,21 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param seconds Seconds to Skip
 	 */
-	public void seekTo(int seconds) throws StreamPlayerException {
-		try {
-			int durationInSeconds = this.getDurationInSeconds();
+	public void seekTo(int seconds) throws Exception {
+		int durationInSeconds = this.getDurationInSeconds();
 
-			if (seconds < 0 || seconds >= durationInSeconds) {
-				throw new StreamPlayerException(PlayerException.SKIP_NOT_SUPPORTED);
-			}
-
-			//Calculate Bytes
-			double percentage = (seconds * 100) / durationInSeconds;
-			long totaBytes = getTotalBytes();
-			long seekBytes = (long) (totaBytes / (0.9936346345345345));
-			boolean b = seekBytes > totaBytes;
-
-			seek(this.getEncodedStreamPosition() + seekBytes);
-		} catch (Exception ex) {
-			ex.printStackTrace();
+		if (seconds < 0) {
+			throw new Exception("Trying to skip negative seconds ");
+		} else if (seconds >= durationInSeconds) {
+			throw new Exception("Trying to skip with seconds {" + seconds + "} > maximum {" + durationInSeconds + "}");
 		}
+
+		//Calculate Bytes
+		long totalBytes = getTotalBytes();
+		double percentage = (seconds * 100) / durationInSeconds;
+		long seekBytes = (long) (totalBytes * (percentage / 100));
+
+		seek(seekBytes);
 	}
 
 //	/**

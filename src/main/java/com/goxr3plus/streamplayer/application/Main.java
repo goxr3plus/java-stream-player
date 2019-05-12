@@ -40,7 +40,7 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 
 			//Seek
 //			seek(500000L);
-			seekTo(243);
+			seekTo(-5);
 
 			// Play it
 			play();
@@ -48,7 +48,7 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 
 
 
-		} catch (final StreamPlayerException ex) {
+		} catch (final Exception ex) {
 			ex.printStackTrace();
 		}
 
@@ -82,15 +82,16 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 			double progress = (nEncodedBytes > 0 && totalBytes > 0)
 				? (nEncodedBytes * 1.0f / totalBytes * 1.0f)
 				: -1.0f;
-			// System.out.println(progress*100+"%")
+//			System.out.println(progress*100+"%");
 
-			//System.out.println("Seconds  : " + (int) (microsecondPosition / 1000000) + " s " + "Progress: [ " + progress * 100 + " ] %");
-			//System.out.println();
+			System.out.println("Seconds  : " + (int) (microsecondPosition / 1000000) + " s " + "Progress: [ " + progress * 100 + " ] %");
+
 
 			// .WHATEVER MUSIC FILE*
 		} else {
 			//System.out.println("Current time is : " + (int) (microsecondPosition / 1000000) + " seconds");
 		}
+
 
 	}
 
