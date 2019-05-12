@@ -38,15 +38,19 @@ public class Main extends StreamPlayer implements StreamPlayerListener {
 			// Example
 			open(new File(audioAbsolutePath));
 
-			//Seek
-//			seek(500000L);
-			seekTo(-5);
+			//Seek by bytes
+			//seekBytes(500000L);
+
+			//Seek +x seconds starting from the current position
+			seekSeconds(15);
+			seekSeconds(15);
+
+			/* Seek starting from the begginning of the audio */
+			//seekTo(200);
 
 			// Play it
 			play();
 			//pause();
-
-
 
 		} catch (final Exception ex) {
 			ex.printStackTrace();

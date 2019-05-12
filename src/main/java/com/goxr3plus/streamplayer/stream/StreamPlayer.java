@@ -679,7 +679,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
-	public long seek(final long bytes) throws StreamPlayerException {
+	public long seekBytes(final long bytes) throws StreamPlayerException {
 		long totalSkipped = 0;
 
 		// If it is File
@@ -735,18 +735,27 @@ public class StreamPlayer implements Callable<Void> {
 		return totalSkipped;
 	}
 
-//	/**
-//	 * Skip x seconds of audio
-//	 * See  {@link #seek(long)}
-//	 *
-//	 * @param seconds Seconds to Skip
-//	 */
-//	public void seekSeconds(int seconds) throws StreamPlayerException {
-//		long bytes = 0;
-//
-//		seek(bytes);
-//	}
-//
+	/**
+	 * Skip x seconds of audio
+	 * See  {@link #seekBytes(long)}
+	 *
+	 * @param seconds Seconds to Skip
+	 */
+	//todo not finished needs more validations
+	public long seekSeconds(int seconds) throws Exception {
+		int durationInSeconds = this.getDurationInSeconds();
+
+		//Validate
+		validateSeconds(seconds, durationInSeconds);
+
+		//Calculate Bytes
+		long totalBytes = getTotalBytes();
+		double percentage = (seconds * 100) / durationInSeconds;
+		long bytes = (long) (totalBytes * (percentage / 100));
+
+		return seekBytes(this.getEncodedStreamPosition() + bytes);
+	}
+
 //	/**
 //	 * Skip seconds of audio based on the pattern
 //	 * See  {@link #seek(long)}
@@ -761,25 +770,22 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Go to X time of the Audio
-	 * See  {@link #seek(long)}
+	 * See  {@link #seekBytes(long)}
 	 *
 	 * @param seconds Seconds to Skip
 	 */
-	public void seekTo(int seconds) throws Exception {
+	public long seekTo(int seconds) throws Exception {
 		int durationInSeconds = this.getDurationInSeconds();
 
-		if (seconds < 0) {
-			throw new Exception("Trying to skip negative seconds ");
-		} else if (seconds >= durationInSeconds) {
-			throw new Exception("Trying to skip with seconds {" + seconds + "} > maximum {" + durationInSeconds + "}");
-		}
+		//Validate
+		validateSeconds(seconds, durationInSeconds);
 
 		//Calculate Bytes
 		long totalBytes = getTotalBytes();
 		double percentage = (seconds * 100) / durationInSeconds;
-		long seekBytes = (long) (totalBytes * (percentage / 100));
+		long bytes = (long) (totalBytes * (percentage / 100));
 
-		seek(seekBytes);
+		return seekBytes(bytes);
 	}
 
 //	/**
@@ -793,6 +799,14 @@ public class StreamPlayer implements Callable<Void> {
 //
 //		seek(bytes);
 //	}
+
+	private void validateSeconds(int seconds, int durationInSeconds) throws Exception {
+		if (seconds < 0) {
+			throw new Exception("Trying to skip negative seconds ");
+		} else if (seconds >= durationInSeconds) {
+			throw new Exception("Trying to skip with seconds {" + seconds + "} > maximum {" + durationInSeconds + "}");
+		}
+	}
 
 	public int getDurationInSeconds() {
 
