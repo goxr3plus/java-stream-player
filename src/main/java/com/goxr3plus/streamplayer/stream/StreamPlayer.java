@@ -47,16 +47,15 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.tritonus.share.sampled.TAudioFormat;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
-import javazoom.spi.PropertiesContainer;
 import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
+
+import javazoom.spi.PropertiesContainer;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under Java 10
- */
-/**
+ *
  * @author GOXR3PLUS (www.goxr3plus.co.nf)
  * @author JavaZOOM (www.javazoom.net)
- *
  */
 public class StreamPlayer implements Callable<Void> {
 
@@ -164,7 +163,7 @@ public class StreamPlayer implements Callable<Void> {
 	 */
 	public StreamPlayer() {
 		streamPlayerExecutorService = Executors
-				.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayer"));
+			.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayer"));
 		eventsExecutorService = Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayerEvent"));
 		listeners = new ArrayList<>();
 		reset();
@@ -208,16 +207,17 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Notify listeners about a BasicPlayerEvent.
 	 *
-	 * @param playerStatus          event code.
+	 * @param playerStatus event code.
 	 * @param encodedStreamPosition in the stream when the event occurs.
-	 * @param description           the description
+	 * @param description the description
+	 *
 	 * @return A String Describing if any problem occurred
 	 */
 	private String generateEvent(final Status status, final int encodedStreamPosition, final Object description) {
 		try {
 			return eventsExecutorService
-					.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners))
-					.get();
+				.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners))
+				.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.log(Level.WARNING, "Problem in StreamPlayer generateEvent() method", ex);
 		}
@@ -248,6 +248,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Open the specific object which can be File,URL or InputStream.
 	 *
 	 * @param object the object [File or URL or InputStream ]
+	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
 	public void open(final Object object) throws StreamPlayerException {
@@ -395,7 +396,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Change the Speed Rate of the Audio , this variable affects the Sample Rate ,
 	 * for example 1.0 is normal , 0.5 is half the speed and 2.0 is double the speed
 	 * Note that you have to restart the audio for this to take effect
-	 * 
+	 *
 	 * @param speedFactor speedFactor
 	 */
 	public void setSpeedFactor(final double speedFactor) {
@@ -405,7 +406,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Inits a DateLine.<br>
-	 * 
+	 * <p>
 	 * From the AudioInputStream, i.e. from the sound file, we fetch information
 	 * about the format of the audio data. These information include the sampling
 	 * frequency, the number of channels and the size of the samples. There
@@ -431,20 +432,19 @@ public class StreamPlayer implements Callable<Void> {
 
 			// Calculate the Sample Size in bits
 			int nSampleSizeInBits = sourceFormat.getSampleSizeInBits();
-			if (sourceFormat.getEncoding() == AudioFormat.Encoding.ULAW
-					|| sourceFormat.getEncoding() == AudioFormat.Encoding.ALAW || nSampleSizeInBits <= 0
-					|| nSampleSizeInBits != 8)
+			if (sourceFormat.getEncoding() == AudioFormat.Encoding.ULAW || sourceFormat.getEncoding() == AudioFormat.Encoding.ALAW
+				|| nSampleSizeInBits <= 0 || nSampleSizeInBits != 8)
 				nSampleSizeInBits = 16;
 
 			final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-					(float) (sourceFormat.getSampleRate() * speedFactor), nSampleSizeInBits, sourceFormat.getChannels(),
-					nSampleSizeInBits / 8 * sourceFormat.getChannels(), sourceFormat.getSampleRate(), false);
+				(float) (sourceFormat.getSampleRate() * speedFactor), nSampleSizeInBits, sourceFormat.getChannels(),
+				nSampleSizeInBits / 8 * sourceFormat.getChannels(), sourceFormat.getSampleRate(), false);
 
 			// int frameSize = sourceFormat.getChannels() * (nSampleSizeInBits / 8)
 
 			logger.info(() -> "Sample Rate =" + targetFormat.getSampleRate() + ",Frame Rate="
-					+ targetFormat.getFrameRate() + ",Bit Rate=" + targetFormat.getSampleSizeInBits()
-					+ "Target format: " + targetFormat + "\n");
+				+ targetFormat.getFrameRate() + ",Bit Rate=" + targetFormat.getSampleSizeInBits()
+				+ "Target format: " + targetFormat + "\n");
 
 			// Keep a reference on encoded stream to progress notification.
 			encodedAudioInputStream = audioInputStream;
@@ -458,7 +458,7 @@ public class StreamPlayer implements Callable<Void> {
 			// Create decoded Stream
 			audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
 			final DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioInputStream.getFormat(),
-					AudioSystem.NOT_SPECIFIED);
+				AudioSystem.NOT_SPECIFIED);
 			if (!AudioSystem.isLineSupported(lineInfo))
 				throw new StreamPlayerException(PlayerException.LINE_NOT_SUPPORTED);
 
@@ -510,13 +510,13 @@ public class StreamPlayer implements Callable<Void> {
 
 				// Master_Gain Control?
 				gainControl = sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)
-						? (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN)
-						: null;
+					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN)
+					: null;
 
 				// PanControl?
 				panControl = sourceDataLine.isControlSupported(FloatControl.Type.PAN)
-						? (FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN)
-						: null;
+					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN)
+					: null;
 
 				// SampleRate?
 				// if (sourceDataLine.isControlSupported(FloatControl.Type.SAMPLE_RATE))
@@ -527,13 +527,13 @@ public class StreamPlayer implements Callable<Void> {
 
 				// Mute?
 				muteControl = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
-						? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
-						: null;
+					? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
+					: null;
 
 				// Speakers Balance?
 				balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
-						? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
-						: null;
+					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
+					: null;
 			}
 
 		}
@@ -578,7 +578,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Pauses the play back.<br>
-	 * 
+	 * <p>
 	 * Player Status = PAUSED. * @return False if failed(so simple...)
 	 *
 	 * @return true, if successful
@@ -594,7 +594,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Stops the play back.<br>
-	 *
+	 * <p>
 	 * Player Status = STOPPED.<br>
 	 * Thread should free Audio resources.
 	 */
@@ -610,9 +610,9 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Resumes the play back.<br>
-	 *
+	 * <p>
 	 * Player Status = PLAYING*
-	 * 
+	 *
 	 * @return False if failed(so simple...)
 	 */
 	public boolean resume() {
@@ -768,9 +768,11 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Skip bytes in the File input stream. It will skip N frames matching to bytes,
 	 * so it will never skip given bytes len
-	 * 
+	 *
 	 * @param bytes the bytes
+	 *
 	 * @return value bigger than 0 for File and value = 0 for URL and InputStream
+	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
 	public long seek(final long bytes) throws StreamPlayerException {
@@ -807,7 +809,7 @@ public class StreamPlayer implements Callable<Void> {
 							logger.info("Skipped : " + totalSkipped + "/" + bytes);
 							if (totalSkipped == -1)
 								throw new StreamPlayerException(
-										StreamPlayerException.PlayerException.SKIP_NOT_SUPPORTED);
+									StreamPlayerException.PlayerException.SKIP_NOT_SUPPORTED);
 
 							logger.info("Skeeping:" + totalSkipped);
 						}
@@ -830,8 +832,33 @@ public class StreamPlayer implements Callable<Void> {
 	}
 
 	/**
+	 * See  {@link #seek(long)}
+	 * @param seconds
+	 */
+	public void seek(int seconds) throws StreamPlayerException {
+		long bytes = 0;
+
+
+
+
+		seek(bytes);
+	}
+
+	/**
+	 * See  {@link #seek(long)}
+	 * @param pattern A string in the format (HH:MM:SS) WHERE h = HOURS , M = minutes , S = seconds
+	 */
+	public void seek(String pattern) throws StreamPlayerException {
+		long bytes = 0;
+
+
+
+		seek(bytes);
+	}
+
+	/**
 	 * Main loop.
-	 *
+	 * <p>
 	 * Player Status == STOPPED || SEEKING = End of Thread + Freeing Audio
 	 * Resources.<br>
 	 * Player Status == PLAYING = Audio stream data sent to Audio line.<br>
@@ -848,7 +875,7 @@ public class StreamPlayer implements Callable<Void> {
 		synchronized (audioLock) {
 			// Main play/pause loop.
 			while ((nBytesRead != -1) && status != Status.STOPPED && status != Status.NOT_SPECIFIED
-					&& status != Status.SEEKING) {
+				&& status != Status.SEEKING) {
 				// if (status == Status.SEEKING) {
 				// try {
 				// System.out.println("Audio Seeking ...");
@@ -870,12 +897,12 @@ public class StreamPlayer implements Callable<Void> {
 						// Reads up a specified maximum number of bytes from audio stream
 						// wtf i have written here omg //to fix! cause it is complicated
 						for (; toRead > 0 && (nBytesRead = audioInputStream.read(audioDataBuffer.array(), totalRead,
-								toRead)) != -1; toRead -= nBytesRead, totalRead += nBytesRead)
+							toRead)) != -1; toRead -= nBytesRead, totalRead += nBytesRead)
 
 							// Check for under run
 							if (sourceDataLine.available() >= sourceDataLine.getBufferSize())
 								logger.info(() -> "Underrun> Available=" + sourceDataLine.available()
-										+ " , SourceDataLineBuffer=" + sourceDataLine.getBufferSize());
+									+ " , SourceDataLineBuffer=" + sourceDataLine.getBufferSize());
 
 						// Check if anything has been read
 						if (totalRead > 0) {
@@ -902,11 +929,11 @@ public class StreamPlayer implements Callable<Void> {
 									// Pass audio parameters such as instant
 									// bit rate, ...
 									listener.progress(nEncodedBytes, sourceDataLine.getMicrosecondPosition(),
-											trimBuffer, ((PropertiesContainer) audioInputStream).properties());
+										trimBuffer, ((PropertiesContainer) audioInputStream).properties());
 								} else
 									// Pass audio parameters
 									listener.progress(nEncodedBytes, sourceDataLine.getMicrosecondPosition(),
-											trimBuffer, emptyMap);
+										trimBuffer, emptyMap);
 							});
 
 						}
@@ -964,7 +991,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Calculates the current position of the encoded audio based on <br>
 	 * <b>nEncodedBytes = encodedAudioLength -
 	 * encodedAudioInputStream.available();</b>
-	 * 
+	 *
 	 * @return The Position of the encoded stream in term of bytes
 	 */
 	public int getEncodedStreamPosition() {
@@ -995,7 +1022,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Return SourceDataLine buffer size.
-	 * 
+	 *
 	 * @return -1 maximum buffer size.
 	 */
 	public int getLineBufferSize() {
@@ -1004,7 +1031,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Return SourceDataLine current buffer size.
-	 * 
+	 *
 	 * @return The current line buffer size
 	 */
 	public int getLineCurrentBufferSize() {
@@ -1042,6 +1069,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Returns the mixer with this name.
 	 *
 	 * @param name the name
+	 *
 	 * @return The Mixer with that name
 	 */
 	private Mixer getMixer(final String name) {
@@ -1063,8 +1091,9 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Check if the <b>Control</b> is Supported by m_line.
 	 *
-	 * @param control   the control
+	 * @param control the control
 	 * @param component the component
+	 *
 	 * @return true, if successful
 	 */
 	private boolean hasControl(final Type control, final Control component) {
@@ -1073,7 +1102,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Returns Gain value.
-	 * 
+	 *
 	 * @return The Gain Value
 	 */
 	public float getGainValue() {
@@ -1083,7 +1112,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Returns maximum Gain value.
-	 * 
+	 *
 	 * @return The Maximum Gain Value
 	 */
 	public float getMaximumGain() {
@@ -1093,7 +1122,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Returns minimum Gain value.
-	 * 
+	 *
 	 * @return The Minimum Gain Value
 	 */
 	public float getMinimumGain() {
@@ -1104,7 +1133,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Returns Pan precision.
-	 * 
+	 *
 	 * @return The Precision Value
 	 */
 	public float getPrecision() {
@@ -1114,7 +1143,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * Returns Pan value.
-	 * 
+	 *
 	 * @return The Pan Value
 	 */
 	public float getPan() {
@@ -1142,7 +1171,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/****
 	 * Return the total size of this file in bytes.
-	 * 
+	 *
 	 * @return encodedAudioLength
 	 */
 	public long getTotalBytes() {
@@ -1184,7 +1213,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/**
 	 * This method will return the status of the player
-	 * 
+	 *
 	 * @return The Player Status
 	 */
 	public Status getStatus() {
@@ -1195,6 +1224,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Deep copy of a Map.
 	 *
 	 * @param map The Map to be Copied
+	 *
 	 * @return the map that is an exact copy of the given map
 	 */
 	private Map<String, Object> deepCopy(final Map<String, Object> map) {
@@ -1207,7 +1237,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Set SourceDataLine buffer size. It affects audio latency. (the delay between
 	 * line.write(data) and real sound). Minimum value should be over 10000 bytes.
-	 * 
+	 *
 	 * @param size -1 means maximum buffer size available.
 	 */
 	public void setLineBufferSize(final int size) {
@@ -1273,7 +1303,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Changes specific values from equalizer.
 	 *
 	 * @param array the array
-	 * @param stop  the stop
+	 * @param stop the stop
 	 */
 	public void setEqualizer(final float[] array, final int stop) {
 		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
@@ -1289,7 +1319,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Changes a value from equalizer.
 	 *
 	 * @param value the value
-	 * @param key   the key
+	 * @param key the key
 	 */
 	public void setEqualizerKey(final float value, final int key) {
 		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
