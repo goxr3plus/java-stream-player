@@ -29,7 +29,7 @@ https://jitpack.io/private#goxr3plus/java-stream-player
 <dependency>
    <groupId>com.github.goxr3plus</groupId>
    <artifactId>java-stream-player</artifactId>
-   <version>9.0.1</version>
+   <version>9.0.3</version>
 </dependency>
 ```
 
