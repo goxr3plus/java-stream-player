@@ -13,6 +13,7 @@
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<junit.version>5.5.1</junit.version>
 	</properties>
 
 	<build>
@@ -22,6 +23,7 @@
 				<directory>${project.basedir}/src/main/resources</directory>
 			</resource>
 		</resources>
+		<testSourceDirectory>${project.basedir}/src/test/java</testSourceDirectory>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -138,6 +140,31 @@
 			<artifactId>commons-io</artifactId>
 			<version>2.6</version>
 		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-engine -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-params -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-params</artifactId>
+			<version>${junit.version}</version>
+			<scope>test</scope>
+		</dependency>
+
 
 
 	</dependencies>
