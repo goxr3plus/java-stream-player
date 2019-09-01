@@ -73,7 +73,7 @@ public class StreamPlayerEventLauncher implements Callable<String> {
     }
 
     @Override
-    public String call() throws Exception {
+    public String call() {
 	// Notify all the listeners that the state has been updated
 	if (listeners != null) {
 	    listeners.forEach(listener -> listener
