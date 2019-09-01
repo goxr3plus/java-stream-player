@@ -65,7 +65,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Class logger
 	 */
-	private static final Logger logger = Logger.getLogger(StreamPlayer.class.getName());
+	private Logger logger;
 
 	// -------------------AUDIO---------------------
 
@@ -162,12 +162,33 @@ public class StreamPlayer implements Callable<Void> {
 	// -------------------BEGIN OF CONSTRUCTOR---------------------
 
 	/**
-	 * Constructor.
+	 * Default parameter less Constructor. A default logger will be used.
 	 */
 	public StreamPlayer() {
-		streamPlayerExecutorService = Executors
-			.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayer"));
-		eventsExecutorService = Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayerEvent"));
+		this(Logger.getLogger(StreamPlayer.class.getName()));
+
+	}
+
+	/**
+	 * Constructor with a logger.
+	 * @param logger The logger that will be used by the player
+	 */
+	public StreamPlayer(Logger logger) {
+		this(logger,
+				Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayer")),
+				Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayerEvent")));
+	}
+
+	/**
+	 * Constructor with settable logger and executor services.
+	 * @param logger The logger that will be used by the player
+	 * @param streamPlayerExecutorService Executor service for the stream player
+	 * @param eventsExecutorService Executor service for events.
+	 */
+	public StreamPlayer(Logger logger, ExecutorService streamPlayerExecutorService, ExecutorService eventsExecutorService) {
+		this.logger = logger;
+		this.streamPlayerExecutorService = streamPlayerExecutorService;
+		this.eventsExecutorService = eventsExecutorService;
 		listeners = new ArrayList<>();
 		reset();
 	}
