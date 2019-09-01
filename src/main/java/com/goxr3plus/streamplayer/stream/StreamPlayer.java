@@ -742,7 +742,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param seconds Seconds to Skip
 	 */
 	//todo not finished needs more validations
-	public long seekSeconds(int seconds) throws Exception {
+	public long seekSeconds(int seconds) throws StreamPlayerException {
 		int durationInSeconds = this.getDurationInSeconds();
 
 		//Validate
@@ -774,7 +774,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param seconds Seconds to Skip
 	 */
-	public long seekTo(int seconds) throws Exception {
+	public long seekTo(int seconds) throws StreamPlayerException {
 		int durationInSeconds = this.getDurationInSeconds();
 
 		//Validate
@@ -800,11 +800,11 @@ public class StreamPlayer implements Callable<Void> {
 //		seek(bytes);
 //	}
 
-	private void validateSeconds(int seconds, int durationInSeconds) throws Exception {
+	private void validateSeconds(int seconds, int durationInSeconds) {
 		if (seconds < 0) {
-			throw new Exception("Trying to skip negative seconds ");
+			throw new UnsupportedOperationException("Trying to skip negative seconds ");
 		} else if (seconds >= durationInSeconds) {
-			throw new Exception("Trying to skip with seconds {" + seconds + "} > maximum {" + durationInSeconds + "}");
+			throw new UnsupportedOperationException("Trying to skip with seconds {" + seconds + "} > maximum {" + durationInSeconds + "}");
 		}
 	}
 
