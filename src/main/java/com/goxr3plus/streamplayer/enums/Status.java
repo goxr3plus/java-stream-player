@@ -76,6 +76,6 @@ public enum Status {
     PAN,
 
     /** player gain has changed. */
-    GAIN;
+    GAIN
 
 }
