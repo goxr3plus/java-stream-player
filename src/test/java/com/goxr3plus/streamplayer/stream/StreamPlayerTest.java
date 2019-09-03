@@ -4,6 +4,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -12,12 +13,15 @@ class StreamPlayerTest {
 
     @Test
     @DisplayName("Demonstration of spying")
-    void demonstrationOfSpyng() throws StreamPlayerException {
+    void demonstrationOfSpying() throws StreamPlayerException {
+
+        // By using a mocked logger instead of a real one, we get rid of annoying logging messages in the unit test.
+        final Logger logger = mock(Logger.class);
 
         final File audioFile = new File("Logic - Ballin [Bass Boosted].mp3");
 
         // Setup the spy
-        final StreamPlayer streamPlayer = new StreamPlayer();
+        final StreamPlayer streamPlayer = new StreamPlayer(logger);
         final StreamPlayer spy = spy(streamPlayer);
 
         // Execute & verify
