@@ -326,9 +326,9 @@ public class StreamPlayer implements Callable<Void> {
 			status = Status.OPENED;
 			generateEvent(Status.OPENED, getEncodedStreamPosition(), null);
 
-		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException ¢) {
-			logger.log(Level.INFO, ¢.getMessage(), ¢);
-			throw new StreamPlayerException(¢);
+		} catch (LineUnavailableException | UnsupportedAudioFileException | IOException e) {
+			logger.log(Level.INFO, e.getMessage(), e);
+			throw new StreamPlayerException(e);
 		}
 
 		logger.info("Exited initAudioInputStream\n");
@@ -349,7 +349,7 @@ public class StreamPlayer implements Callable<Void> {
 			audioProperties = new HashMap<>();
 		else {
 			// Tritonus SPI compliant audio file format.
-			audioProperties = ((TAudioFileFormat) audioFileFormat).properties();
+			audioProperties = audioFileFormat.properties();
 
 			// Clone the Map because it is not mutable.
 			audioProperties = deepCopy(audioProperties);
@@ -378,7 +378,7 @@ public class StreamPlayer implements Callable<Void> {
 			audioProperties.put("audio.channels", audioFormat.getChannels());
 		// Tritonus SPI compliant audio format.
 		if (audioFormat instanceof TAudioFormat)
-			audioProperties.putAll(((TAudioFormat) audioFormat).properties());
+			audioProperties.putAll(audioFormat.properties());
 
 		// Add SourceDataLine
 		audioProperties.put("basicplayer.sourcedataline", sourceDataLine);
@@ -457,7 +457,7 @@ public class StreamPlayer implements Callable<Void> {
 			// Calculate the Sample Size in bits
 			int nSampleSizeInBits = sourceFormat.getSampleSizeInBits();
 			if (sourceFormat.getEncoding() == AudioFormat.Encoding.ULAW || sourceFormat.getEncoding() == AudioFormat.Encoding.ALAW
-				|| nSampleSizeInBits <= 0 || nSampleSizeInBits != 8)
+                    || nSampleSizeInBits != 8)
 				nSampleSizeInBits = 16;
 
 			final AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
@@ -1068,11 +1068,11 @@ public class StreamPlayer implements Callable<Void> {
 		final Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 
 		if (name != null && mixerInfos != null)
-			for (int i = 0; i < mixerInfos.length; i++)
-				if (mixerInfos[i].getName().equals(name)) {
-					mixer = AudioSystem.getMixer(mixerInfos[i]);
-					break;
-				}
+            for (Mixer.Info mixerInfo : mixerInfos)
+                if (mixerInfo.getName().equals(name)) {
+                    mixer = AudioSystem.getMixer(mixerInfo);
+                    break;
+                }
 		return mixer;
 	}
 
@@ -1183,9 +1183,9 @@ public class StreamPlayer implements Callable<Void> {
 		final int positionByte = AudioSystem.NOT_SPECIFIED;
 		if (audioProperties != null) {
 			if (audioProperties.containsKey("mp3.position.byte"))
-				return ((Integer) audioProperties.get("mp3.position.byte")).intValue();
+				return (Integer) audioProperties.get("mp3.position.byte");
 			if (audioProperties.containsKey("ogg.position.byte"))
-				return ((Integer) audioProperties.get("ogg.position.byte")).intValue();
+				return (Integer) audioProperties.get("ogg.position.byte");
 		}
 		return positionByte;
 	}
@@ -1256,7 +1256,7 @@ public class StreamPlayer implements Callable<Void> {
 	 */
 	public void setGain(final double fGain) {
 		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, gainControl))
-			gainControl.setValue((float) (20 * Math.log10(fGain != 0.0 ? fGain : 0.0000)));
+			gainControl.setValue((float) (20 * Math.log10(fGain)));
 	}
 
 	/**
@@ -1298,8 +1298,7 @@ public class StreamPlayer implements Callable<Void> {
 			return;
 		// Map<?, ?> map = ((PropertiesContainer) audioInputStream).properties()
 		final float[] equalizer = (float[]) ((PropertiesContainer) audioInputStream).properties().get("mp3.equalizer");
-		for (int i = 0; i < stop; i++)
-			equalizer[i] = array[i];
+        if (stop >= 0) System.arraycopy(array, 0, equalizer, 0, stop);
 
 	}
 
