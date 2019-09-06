@@ -533,14 +533,14 @@ public class StreamPlayer implements Callable<Void> {
 				// Control[] c = m_line.getControls()
 
 				// Master_Gain Control?
-				gainControl = sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN)
-					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN)
-					: null;
+				if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
+					gainControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
+				else gainControl = null;
 
 				// PanControl?
-				panControl = sourceDataLine.isControlSupported(FloatControl.Type.PAN)
-					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN)
-					: null;
+				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
+					panControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN);
+				else panControl = null;
 
 				// SampleRate?
 				// if (sourceDataLine.isControlSupported(FloatControl.Type.SAMPLE_RATE))
@@ -1095,8 +1095,12 @@ public class StreamPlayer implements Callable<Void> {
 	 */
 	public float getGainValue() {
 
-		return !hasControl(FloatControl.Type.MASTER_GAIN, gainControl) ? 0.0F : gainControl.getValue();
-	}
+        if (hasControl(FloatControl.Type.MASTER_GAIN, gainControl)) {
+            return gainControl.getValue();
+        } else {
+            return 0.0F;
+        }
+    }
 
 	/**
 	 * Returns maximum Gain value.
@@ -1255,8 +1259,16 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param fGain The new gain value
 	 */
 	public void setGain(final double fGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, gainControl))
-			gainControl.setValue((float) (20 * Math.log10(fGain)));
+		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, gainControl)) {
+            final double logScaleGain = 20 * Math.log10(fGain);
+            gainControl.setValue((float) logScaleGain);
+        }
+	}
+
+	public void setLogScaleGain(final double logScaleGain) {
+		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, gainControl)) {
+			gainControl.setValue((float) logScaleGain);
+		}
 	}
 
 	/**

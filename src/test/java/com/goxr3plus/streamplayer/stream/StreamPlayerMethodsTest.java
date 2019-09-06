@@ -17,7 +17,6 @@ import static org.mockito.Mockito.mock;
  * not as a part of test driven development.
  */
 public class StreamPlayerMethodsTest {
-
     StreamPlayer player;
     private File audioFile;
 
@@ -98,15 +97,15 @@ public class StreamPlayerMethodsTest {
         player.play();
         player.setGain(gain1);
         final float actualGain1First = player.getGainValue();
-        if (listen)    Thread.sleep(2000);
+        if (listen) Thread.sleep(2000);
         final float actualGain1 = player.getGainValue();
 
         player.setGain(gain2);
-        if (listen)         Thread.sleep(2000);
+        if (listen) Thread.sleep(2000);
         final float actualGain2 = player.getGainValue();
 
         player.setGain(gain1);
-        if (listen)        Thread.sleep(2000);
+        if (listen) Thread.sleep(2000);
 
         player.stop();
 
@@ -114,7 +113,73 @@ public class StreamPlayerMethodsTest {
         assertEquals(0, initialGain);
         assertEquals(actualGain1First, actualGain1);
         assertEquals(gain1, actualGain1, delta);  // TODO: Investigate probable bug.
-      //  fail("Test not done");
+        //  fail("Test not done");
+    }
+
+    /**
+     * Plays music if "listen" is true.
+     * Varies the gain, and checks that it can be read back.
+     * If listen is true, it plays for 2 seconds per gain level.
+     *
+     * @throws StreamPlayerException
+     * @throws InterruptedException
+     */
+    @Test
+    void logScaleGain() throws StreamPlayerException, InterruptedException {
+        // Setup
+        final boolean listen = true;
+
+        // Exercise
+
+        player.open(audioFile);
+        player.seekTo(30);
+        player.play();
+
+        assertGainCanBeSetTo(-10, listen);
+        assertGainCanBeSetTo(-75, listen);
+        assertGainCanBeSetTo(0, listen);
+        assertGainCanBeSetTo(6, listen);
+
+        player.stop();
+    }
+
+    private void assertGainCanBeSetTo(double gain, boolean listen) throws InterruptedException {
+        final float atGain = playAtGain(listen, gain);
+        assertEquals(gain, atGain, 0.01);
+    }
+
+    private float playAtGain(boolean listen, double gain) throws InterruptedException {
+        player.setLogScaleGain(gain);
+        if (listen) {
+            Thread.sleep(2000);
+        }
+        return player.getGainValue();
+    }
+
+    /**
+     * Test that the maximum gain is greater than the minimum gain. That is about all we can expect.
+     * The actual values depend on the available {@link SourceDataLine}.
+     * We don't know anything about its scale beforehand.
+     * <p>
+     * The player must be started before maximum and minimum gains can be queried.
+     * <p>
+     * // TODO: Is it really acceptable that we cannot check gain before the player is started?
+     *
+     * @throws StreamPlayerException
+     */
+    @Test
+    void maximumGain() throws StreamPlayerException {
+
+        player.open(audioFile);
+        player.play();
+        final float maximumGain = player.getMaximumGain();
+        final float minimumGain = player.getMinimumGain();
+        player.stop();
+
+        assertTrue(minimumGain < maximumGain,
+                String.format("Maximum gain (%.2f) should be greater than minimum gain (%.2f).",
+                        maximumGain, minimumGain)
+        );
     }
 
     @Test
@@ -278,13 +343,6 @@ public class StreamPlayerMethodsTest {
     @Test
     void lineCurrentBufferSize() {
         player.getLineCurrentBufferSize();
-
-        fail("Test not done");
-    }
-
-    @Test
-    void maximumGain() {
-        player.getMaximumGain();
 
         fail("Test not done");
     }
