@@ -142,7 +142,6 @@ public class StreamPlayer implements Callable<Void> {
 	 * This is starting a Thread for StreamPlayer to Run
 	 */
 	private final ExecutorService streamPlayerExecutorService;
-	private Future<Void> future;
 
 	/**
 	 * This executor service is used in order the playerState events to be executed
@@ -576,9 +575,6 @@ public class StreamPlayer implements Callable<Void> {
 		if (status != Status.OPENED)
 			return;
 
-		// Shutdown previous Thread Running
-		awaitTermination();
-
 		// Open SourceDataLine.
 		try {
 			initLine();
@@ -648,46 +644,6 @@ public class StreamPlayer implements Callable<Void> {
 		logger.info("resumePlayback() completed");
 		return true;
 
-	}
-
-	/**
-	 * Await for the termination of StreamPlayerExecutorService Thread
-	 */
-	private void awaitTermination() {
-		if (future != null && !future.isDone()) {
-			try {
-				// future.get() [Don't use this cause it may hang forever and ever...]
-
-				// Wait ~1 second and then cancel the future
-				final Thread delay = new Thread(() -> {
-					try {
-						for (int i = 0; i < 50; i++) {
-							if (!future.isDone())
-								Thread.sleep(20);
-							else
-								break;
-							System.out.println("StreamPlayer Future is not yet done...");
-						}
-
-					} catch (final InterruptedException ex) {
-						Thread.currentThread().interrupt();
-						logger.log(Level.INFO, ex.getMessage(), ex);
-					}
-				});
-
-				// Start the delay Thread
-				delay.start();
-				// Join until delay Thread is finished
-				delay.join();
-
-			} catch (final InterruptedException ex) {
-				Thread.currentThread().interrupt();
-				logger.log(Level.WARNING, ex.getMessage(), ex);
-			} finally {
-				// Harmless if task already completed
-				future.cancel(true); // interrupt if running
-			}
-		}
 	}
 
 	/**
