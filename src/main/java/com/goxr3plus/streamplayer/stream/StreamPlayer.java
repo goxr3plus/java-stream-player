@@ -583,7 +583,7 @@ public class StreamPlayer implements Callable<Void> {
 		try {
 			initLine();
 		} catch (final LineUnavailableException ex) {
-			throw new StreamPlayerException(StreamPlayerException.PlayerException.CAN_NOT_INIT_LINE, ex);
+			throw new StreamPlayerException(PlayerException.CAN_NOT_INIT_LINE, ex);
 		}
 
 		// Open the sourceDataLine
@@ -666,7 +666,7 @@ public class StreamPlayer implements Callable<Void> {
 								Thread.sleep(20);
 							else
 								break;
-							System.out.println("StreamPlayer Future is not yet done...");
+							logger.log(Level.INFO, "StreamPlayer Future is not yet done...");
 						}
 
 					} catch (final InterruptedException ex) {
@@ -708,7 +708,7 @@ public class StreamPlayer implements Callable<Void> {
 
 			// Check if the requested bytes are more than totalBytes of Audio
 			final long bytesLength = getTotalBytes();
-			System.out.println("Bytes: " + bytes + " BytesLength: " + bytesLength);
+			logger.log(Level.INFO, "Bytes: " + bytes + " BytesLength: " + bytesLength);
 			if ((bytesLength <= 0) || (bytes >= bytesLength)) {
 				generateEvent(Status.EOM, getEncodedStreamPosition(), null);
 				return totalSkipped;
@@ -734,7 +734,7 @@ public class StreamPlayer implements Callable<Void> {
 							logger.info("Skipped : " + totalSkipped + "/" + bytes);
 							if (totalSkipped == -1)
 								throw new StreamPlayerException(
-									StreamPlayerException.PlayerException.SKIP_NOT_SUPPORTED);
+									PlayerException.SKIP_NOT_SUPPORTED);
 
 							logger.info("Skeeping:" + totalSkipped);
 						}
@@ -1281,7 +1281,7 @@ public class StreamPlayer implements Callable<Void> {
 			balanceControl.setValue(fBalance);
 		else
 			try {
-				throw new StreamPlayerException(StreamPlayerException.PlayerException.BALANCE_CONTROL_NOT_SUPPORTED);
+				throw new StreamPlayerException(PlayerException.BALANCE_CONTROL_NOT_SUPPORTED);
 			} catch (final StreamPlayerException ex) {
 				logger.log(Level.WARNING, ex.getMessage(), ex);
 			}
@@ -1387,4 +1387,7 @@ public class StreamPlayer implements Callable<Void> {
 		return status == Status.SEEKING;
 	}
 
+	Logger getLogger() {
+		return logger;
+	}
 }

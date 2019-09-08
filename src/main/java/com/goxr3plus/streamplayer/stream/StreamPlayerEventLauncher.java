@@ -24,6 +24,8 @@ package com.goxr3plus.streamplayer.stream;
 
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.goxr3plus.streamplayer.enums.Status;
 
@@ -34,6 +36,7 @@ import com.goxr3plus.streamplayer.enums.Status;
  */
 public class StreamPlayerEventLauncher implements Callable<String> {
 
+    private final Logger logger;
     /** The player state. */
     private Status playerState = Status.NOT_SPECIFIED;
 
@@ -61,15 +64,15 @@ public class StreamPlayerEventLauncher implements Callable<String> {
      * @param description
      *            the description
      * @param listeners
-     *            the listeners
      */
-    public StreamPlayerEventLauncher(Object source, Status playerStatus, int encodedStreamPosition, Object description,
-	    List<StreamPlayerListener> listeners) {
+    public StreamPlayerEventLauncher(StreamPlayer source, Status playerStatus, int encodedStreamPosition, Object description,
+                                     List<StreamPlayerListener> listeners) {
 	this.source = source;
 	this.playerState = playerStatus;
 	this.encodedStreamPosition = encodedStreamPosition;
 	this.description = description;
 	this.listeners = listeners;
+    this.logger = source.getLogger();
     }
 
     @Override
@@ -79,8 +82,7 @@ public class StreamPlayerEventLauncher implements Callable<String> {
 	    listeners.forEach(listener -> listener
 		    .statusUpdated(new StreamPlayerEvent(source, playerState, encodedStreamPosition, description)));
 	}
-
-	System.out.println("Stream player Status -> " + playerState);
+	logger.log(Level.INFO, "Stream player Status -> " + playerState);
 	return "OK";
     }
 }
