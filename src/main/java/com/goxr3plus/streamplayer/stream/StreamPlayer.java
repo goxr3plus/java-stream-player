@@ -88,17 +88,8 @@ public class StreamPlayer implements Callable<Void> {
 
 	// -------------------CONTROLS---------------------
 
-	/** The gain control. */
-	//private FloatControl gainControl;
-
 	/** The pan control. */
 	private FloatControl panControl;
-
-	/** The balance control. */
-//	private FloatControl balanceControl;
-
-	/** The sample rate control. */
-	// private FloatControl sampleRateControl
 
 	/** The mute control. */
 	private BooleanControl muteControl;
