@@ -89,7 +89,7 @@ public class StreamPlayer implements Callable<Void> {
 	// -------------------CONTROLS---------------------
 
 	/** The gain control. */
-	private FloatControl gainControl;
+	//private FloatControl gainControl;
 
 	/** The pan control. */
 	private FloatControl panControl;
@@ -221,7 +221,7 @@ public class StreamPlayer implements Callable<Void> {
 		encodedAudioLength = -1;
 
 		// Controls
-		setGainControl(null);
+		outlet.setGainControl(null);
 		panControl = null;
 		balanceControl = null;
 		// sampleRateControl = null
@@ -538,8 +538,8 @@ public class StreamPlayer implements Callable<Void> {
 
 				// Master_Gain Control?
 				if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
-					setGainControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN));
-				else setGainControl(null);
+					outlet.setGainControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN));
+				else outlet.setGainControl(null);
 
 				// PanControl?
 				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
@@ -1099,8 +1099,8 @@ public class StreamPlayer implements Callable<Void> {
 	 */
 	public float getGainValue() {
 
-        if (hasControl(FloatControl.Type.MASTER_GAIN, getGainControl())) {
-            return getGainControl().getValue();
+		if (hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
+			return outlet.getGainControl().getValue();
         } else {
             return 0.0F;
         }
@@ -1112,7 +1112,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return The Maximum Gain Value
 	 */
 	public float getMaximumGain() {
-		return !hasControl(FloatControl.Type.MASTER_GAIN, getGainControl()) ? 0.0F : getGainControl().getMaximum();
+		return !hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMaximum();
 
 	}
 
@@ -1123,7 +1123,7 @@ public class StreamPlayer implements Callable<Void> {
 	 */
 	public float getMinimumGain() {
 
-		return !hasControl(FloatControl.Type.MASTER_GAIN, getGainControl()) ? 0.0F : getGainControl().getMinimum();
+		return !hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMinimum();
 
 	}
 
@@ -1263,15 +1263,15 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param fGain The new gain value
 	 */
 	public void setGain(final double fGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, getGainControl())) {
+		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
             final double logScaleGain = 20 * Math.log10(fGain);
-            getGainControl().setValue((float) logScaleGain);
+			outlet.getGainControl().setValue((float) logScaleGain);
         }
 	}
 
 	public void setLogScaleGain(final double logScaleGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, getGainControl())) {
-			getGainControl().setValue((float) logScaleGain);
+		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
+			outlet.getGainControl().setValue((float) logScaleGain);
 		}
 	}
 
@@ -1407,12 +1407,4 @@ public class StreamPlayer implements Callable<Void> {
 		return logger;
 	}
 
-	/** The gain control. */
-	public FloatControl getGainControl() {
-		return gainControl;
-	}
-
-	public void setGainControl(FloatControl gainControl) {
-		this.gainControl = gainControl;
-	}
 }
