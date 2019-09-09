@@ -295,11 +295,21 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void pan() {
-        player.getPan();
-        player.setPan(1000);
+    void pan() throws StreamPlayerException {
+        double delta = 1e-6;
+        final float initialPan = player.getPan();
+        assertEquals(0, initialPan);
 
-        fail("Test not done");
+        player.open(audioFile);
+        player.play();
+
+        double pan = -0.9;
+        player.setPan(pan);
+        assertEquals(pan, player.getPan(), delta);
+
+        double outsideRange = 1.1;
+        player.setPan(outsideRange);
+        assertEquals(pan, player.getPan(), delta);
     }
 
     @Test
