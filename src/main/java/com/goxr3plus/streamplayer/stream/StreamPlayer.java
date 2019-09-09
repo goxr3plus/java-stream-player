@@ -85,12 +85,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/** The source data line. */
 	private SourceDataLine sourceDataLine;
-
-	// -------------------CONTROLS---------------------
-
-	/** The mute control. */
-	private BooleanControl muteControl;
-
+	
 	// -------------------LOCKS---------------------
 
 	/**
@@ -542,9 +537,10 @@ public class StreamPlayer implements Callable<Void> {
 				// sampleRateControl = null
 
 				// Mute?
-				muteControl = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
+				BooleanControl muteControl1 = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
 					? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
 					: null;
+				outlet.setMuteControl(muteControl1);
 
 				// Speakers Balance?
 				FloatControl balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
@@ -1142,7 +1138,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return True if muted , False if not
 	 */
 	public boolean getMute() {
-		return hasControl(BooleanControl.Type.MUTE, muteControl) && muteControl.getValue();
+		return hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue();
 	}
 
 	/**
@@ -1270,8 +1266,8 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param mute True to mute the audio of False to unmute it
 	 */
 	public void setMute(final boolean mute) {
-		if (hasControl(BooleanControl.Type.MUTE, muteControl) && muteControl.getValue() != mute)
-			muteControl.setValue(mute);
+		if (hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue() != mute)
+			outlet.getMuteControl().setValue(mute);
 	}
 
 	/**
