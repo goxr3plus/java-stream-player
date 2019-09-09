@@ -1,5 +1,6 @@
 package com.goxr3plus.streamplayer.stream;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -7,8 +8,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import static java.lang.Math.log10;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class SourceDataLineTest {
@@ -21,6 +21,11 @@ public class SourceDataLineTest {
         final Logger logger = mock(Logger.class);
         player = new StreamPlayer(logger);
         audioFile = new File("Logic - Ballin [Bass Boosted].mp3");
+    }
+
+    @AfterEach
+    void tearDown() {
+        player.stop();
     }
 
     @Test
@@ -132,7 +137,23 @@ public class SourceDataLineTest {
         double outsideRange = 1.1;
         player.setPan(outsideRange);
         assertEquals(pan, player.getPan(), delta);
+    }
 
-//        fail("Test not done");
+    @Test
+    void mute() throws StreamPlayerException {
+        assertFalse(player.getMute());
+        player.setMute(true);
+        assertFalse(player.getMute());
+        player.open(audioFile);
+        player.setMute(true);
+        assertFalse(player.getMute());
+
+        player.play();
+        player.setMute(true);
+        assertTrue(player.getMute()); // setMute works only after play() has been called.
+
+
+        player.setMute(false);
+        assertFalse(player.getMute());
     }
 }

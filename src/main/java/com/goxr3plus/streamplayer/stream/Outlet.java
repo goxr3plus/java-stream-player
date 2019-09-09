@@ -1,12 +1,23 @@
 package com.goxr3plus.streamplayer.stream;
 
+import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.FloatControl;
 
 public class Outlet {
 
     private FloatControl balanceControl;
     private FloatControl gainControl;
+    private BooleanControl muteControl;
     private FloatControl panControl;
+
+
+    public BooleanControl getMuteControl() {
+        return muteControl;
+    }
+
+    public void setMuteControl(BooleanControl muteControl) {
+        this.muteControl = muteControl;
+    }
 
 
     public FloatControl getPanControl() {
