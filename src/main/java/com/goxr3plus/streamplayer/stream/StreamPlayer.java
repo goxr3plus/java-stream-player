@@ -95,7 +95,7 @@ public class StreamPlayer implements Callable<Void> {
 	private FloatControl panControl;
 
 	/** The balance control. */
-	private FloatControl balanceControl;
+//	private FloatControl balanceControl;
 
 	/** The sample rate control. */
 	// private FloatControl sampleRateControl
@@ -223,7 +223,7 @@ public class StreamPlayer implements Callable<Void> {
 		// Controls
 		outlet.setGainControl(null);
 		panControl = null;
-		balanceControl = null;
+		outlet.setBalanceControl(null);
 		// sampleRateControl = null
 
 		// Notify the Status
@@ -559,9 +559,10 @@ public class StreamPlayer implements Callable<Void> {
 					: null;
 
 				// Speakers Balance?
-				balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
+				FloatControl balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
 					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
 					: null;
+				outlet.setBalanceControl(balanceControl);
 			}
 
 		}
@@ -1162,7 +1163,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return The Balance Value
 	 */
 	public float getBalance() {
-		return !hasControl(FloatControl.Type.BALANCE, balanceControl) ? 0f : balanceControl.getValue();
+		return !hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) ? 0f : outlet.getBalanceControl().getValue();
 	}
 
 	/****
@@ -1293,8 +1294,8 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param fBalance the new balance
 	 */
 	public void setBalance(final float fBalance) {
-		if (hasControl(FloatControl.Type.BALANCE, balanceControl) && fBalance >= -1.0 && fBalance <= 1.0)
-			balanceControl.setValue(fBalance);
+		if (hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) && fBalance >= -1.0 && fBalance <= 1.0)
+			outlet.getBalanceControl().setValue(fBalance);
 		else
 			try {
 				throw new StreamPlayerException(PlayerException.BALANCE_CONTROL_NOT_SUPPORTED);

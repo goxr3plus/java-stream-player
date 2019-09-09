@@ -95,4 +95,23 @@ public class SourceDataLineTest {
         }
         return player.getGainValue();
     }
+
+    @Test
+    void balance() throws StreamPlayerException {
+        // Setup
+        final float wantedBalance = 0.5f;
+
+        //Exercise
+        player.open(audioFile);
+        player.play();  // Necessary to be able to set the balance
+
+        final float initialBalance = player.getBalance();
+        player.setBalance(wantedBalance);
+        player.stop();  // Probably not needed, but cleanup is good.
+        final float actualBalance = player.getBalance();  // Can be made before or after stop()
+
+        // Verify
+        assertEquals(0, initialBalance);
+        assertEquals(wantedBalance, actualBalance);
+    }
 }
