@@ -2,6 +2,7 @@ package com.goxr3plus.streamplayer.stream;
 
 import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.SourceDataLine;
 
 public class Outlet {
 
@@ -9,6 +10,17 @@ public class Outlet {
     private FloatControl gainControl;
     private BooleanControl muteControl;
     private FloatControl panControl;
+
+    /** The source data line. */
+    private SourceDataLine sourceDataLine;
+
+    public SourceDataLine getSourceDataLine() {
+        return sourceDataLine;
+    }
+
+    public void setSourceDataLine(SourceDataLine sourceDataLine) {
+        this.sourceDataLine = sourceDataLine;
+    }
 
 
     public BooleanControl getMuteControl() {

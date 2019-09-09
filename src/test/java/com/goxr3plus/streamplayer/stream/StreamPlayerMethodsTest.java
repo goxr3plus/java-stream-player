@@ -198,7 +198,8 @@ public class StreamPlayerMethodsTest {
 
     @Test
     void sourceDataLine() {
-        final SourceDataLine sourceDataLine = player.getSourceDataLine();
+        final SourceDataLine sourceDataLine = player.getOutlet().getSourceDataLine();
+
 
         assertNotNull(sourceDataLine);
 

@@ -82,9 +82,6 @@ public class StreamPlayer implements Callable<Void> {
 
 	/** The audio file format. */
 	private AudioFileFormat audioFileFormat;
-
-	/** The source data line. */
-	private SourceDataLine sourceDataLine;
 	
 	// -------------------LOCKS---------------------
 
@@ -191,10 +188,10 @@ public class StreamPlayer implements Callable<Void> {
 		}
 
 		// Source Data Line
-		if (sourceDataLine != null) {
-			sourceDataLine.flush();
-			sourceDataLine.close();
-			sourceDataLine = null;
+		if (outlet.getSourceDataLine() != null) {
+			outlet.getSourceDataLine().flush();
+			outlet.getSourceDataLine().close();
+			outlet.setSourceDataLine(null);
 		}
 
 		// AudioFile
@@ -368,7 +365,7 @@ public class StreamPlayer implements Callable<Void> {
 			audioProperties.putAll(audioFormat.properties());
 
 		// Add SourceDataLine
-		audioProperties.put("basicplayer.sourcedataline", sourceDataLine);
+		audioProperties.put("basicplayer.sourcedataline", outlet.getSourceDataLine());
 
 		// Keep this final reference for the lambda expression
 		final Map<String, Object> audioPropertiesCopy = audioProperties;
@@ -390,12 +387,12 @@ public class StreamPlayer implements Callable<Void> {
 
 		logger.info("Initiating the line...");
 
-		if (sourceDataLine == null)
+		if (outlet.getSourceDataLine() == null)
 			createLine();
-		if (!sourceDataLine.isOpen())
+		if (!outlet.getSourceDataLine().isOpen())
 			openLine();
-		else if (!sourceDataLine.getFormat().equals(audioInputStream == null ? null : audioInputStream.getFormat())) {
-			sourceDataLine.close();
+		else if (!outlet.getSourceDataLine().getFormat().equals(audioInputStream == null ? null : audioInputStream.getFormat())) {
+			outlet.getSourceDataLine().close();
 			openLine();
 		}
 	}
@@ -434,7 +431,7 @@ public class StreamPlayer implements Callable<Void> {
 
 		logger.info("Entered CreateLine()!:\n");
 
-		if (sourceDataLine != null)
+		if (outlet.getSourceDataLine() != null)
 			logger.warning("Warning Source DataLine is not null!\n");
 		else {
 			final AudioFormat sourceFormat = audioInputStream.getFormat();
@@ -481,19 +478,19 @@ public class StreamPlayer implements Callable<Void> {
 			// Continue
 			final Mixer mixer = getMixer(mixerName);
 			if (mixer == null) {
-				sourceDataLine = (SourceDataLine) AudioSystem.getLine(lineInfo);
+				outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
 				mixerName = null;
 			} else {
 				logger.info("Mixer: " + mixer.getMixerInfo());
-				sourceDataLine = (SourceDataLine) mixer.getLine(lineInfo);
+				outlet.setSourceDataLine((SourceDataLine) mixer.getLine(lineInfo));
 			}
 
-			sourceDataLine = (SourceDataLine) AudioSystem.getLine(lineInfo);
+			outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
 
 			// --------------------------------------------------------------------------------
-			logger.info(() -> "Line : " + sourceDataLine);
-			logger.info(() -> "Line Info : " + sourceDataLine.getLineInfo());
-			logger.info(() -> "Line AudioFormat: " + sourceDataLine.getFormat() + "\n");
+			logger.info(() -> "Line : " + outlet.getSourceDataLine());
+			logger.info(() -> "Line Info : " + outlet.getSourceDataLine().getLineInfo());
+			logger.info(() -> "Line AudioFormat: " + outlet.getSourceDataLine().getFormat() + "\n");
 			logger.info("Exited CREATELINE()!:\n");
 		}
 	}
@@ -507,26 +504,26 @@ public class StreamPlayer implements Callable<Void> {
 
 		logger.info("Entered OpenLine()!:\n");
 
-		if (sourceDataLine != null) {
+		if (outlet.getSourceDataLine() != null) {
 			final AudioFormat audioFormat = audioInputStream.getFormat();
-			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : sourceDataLine.getBufferSize();
-			sourceDataLine.open(audioFormat, currentLineBufferSize);
+			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
+			outlet.getSourceDataLine().open(audioFormat, currentLineBufferSize);
 
 			// opened?
-			if (sourceDataLine.isOpen()) {
+			if (outlet.getSourceDataLine().isOpen()) {
 				// logger.info(() -> "Open Line Buffer Size=" + bufferSize + "\n");
 
 				/*-- Display supported controls --*/
 				// Control[] c = m_line.getControls()
 
 				// Master_Gain Control?
-				if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
-					outlet.setGainControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN));
+				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.MASTER_GAIN))
+					outlet.setGainControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.MASTER_GAIN));
 				else outlet.setGainControl(null);
 
 				// PanControl?
-				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
-					outlet.setPanControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN));
+				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.PAN))
+					outlet.setPanControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.PAN));
 				else outlet.setPanControl(null);
 
 				// SampleRate?
@@ -537,14 +534,14 @@ public class StreamPlayer implements Callable<Void> {
 				// sampleRateControl = null
 
 				// Mute?
-				BooleanControl muteControl1 = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
-					? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
+				BooleanControl muteControl1 = outlet.getSourceDataLine().isControlSupported(BooleanControl.Type.MUTE)
+					? (BooleanControl) outlet.getSourceDataLine().getControl(BooleanControl.Type.MUTE)
 					: null;
 				outlet.setMuteControl(muteControl1);
 
 				// Speakers Balance?
-				FloatControl balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
-					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
+				FloatControl balanceControl = outlet.getSourceDataLine().isControlSupported(FloatControl.Type.BALANCE)
+					? (FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.BALANCE)
 					: null;
 				outlet.setBalanceControl(balanceControl);
 			}
@@ -576,8 +573,8 @@ public class StreamPlayer implements Callable<Void> {
 		}
 
 		// Open the sourceDataLine
-		if (sourceDataLine != null && !sourceDataLine.isRunning()) {
-			sourceDataLine.start();
+		if (outlet.getSourceDataLine() != null && !outlet.getSourceDataLine().isRunning()) {
+			outlet.getSourceDataLine().start();
 
 			// Proceed only if we have not problems
 			logger.info("Submitting new StreamPlayer Thread");
@@ -597,7 +594,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return true, if successful
 	 */
 	public boolean pause() {
-		if (sourceDataLine == null || status != Status.PLAYING)
+		if (outlet.getSourceDataLine() == null || status != Status.PLAYING)
 			return false;
 		status = Status.PAUSED;
 		logger.info("pausePlayback() completed");
@@ -629,9 +626,9 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return False if failed(so simple...)
 	 */
 	public boolean resume() {
-		if (sourceDataLine == null || status != Status.PAUSED)
+		if (outlet.getSourceDataLine() == null || status != Status.PAUSED)
 			return false;
-		sourceDataLine.start();
+		outlet.getSourceDataLine().start();
 		status = Status.PLAYING;
 		generateEvent(Status.RESUMED, getEncodedStreamPosition(), null);
 		logger.info("resumePlayback() completed");
@@ -877,9 +874,9 @@ public class StreamPlayer implements Callable<Void> {
 							toRead)) != -1; toRead -= nBytesRead, totalRead += nBytesRead)
 
 							// Check for under run
-							if (sourceDataLine.available() >= sourceDataLine.getBufferSize())
-								logger.info(() -> "Underrun> Available=" + sourceDataLine.available()
-									+ " , SourceDataLineBuffer=" + sourceDataLine.getBufferSize());
+							if (outlet.getSourceDataLine().available() >= outlet.getSourceDataLine().getBufferSize())
+								logger.info(() -> "Underrun> Available=" + outlet.getSourceDataLine().available()
+									+ " , SourceDataLineBuffer=" + outlet.getSourceDataLine().getBufferSize());
 
 						// Check if anything has been read
 						if (totalRead > 0) {
@@ -893,7 +890,7 @@ public class StreamPlayer implements Callable<Void> {
 							}
 
 							// Writes audio data to the mixer via this source data line
-							sourceDataLine.write(trimBuffer, 0, totalRead);
+							outlet.getSourceDataLine().write(trimBuffer, 0, totalRead);
 
 							// Compute position in bytes in encoded stream.
 							final int nEncodedBytes = getEncodedStreamPosition();
@@ -905,11 +902,11 @@ public class StreamPlayer implements Callable<Void> {
 								if (audioInputStream instanceof PropertiesContainer) {
 									// Pass audio parameters such as instant
 									// bit rate, ...
-									listener.progress(nEncodedBytes, sourceDataLine.getMicrosecondPosition(),
+									listener.progress(nEncodedBytes, outlet.getSourceDataLine().getMicrosecondPosition(),
 										trimBuffer, ((PropertiesContainer) audioInputStream).properties());
 								} else
 									// Pass audio parameters
-									listener.progress(nEncodedBytes, sourceDataLine.getMicrosecondPosition(),
+									listener.progress(nEncodedBytes, outlet.getSourceDataLine().getMicrosecondPosition(),
 										trimBuffer, emptyMap);
 							});
 
@@ -918,9 +915,9 @@ public class StreamPlayer implements Callable<Void> {
 					} else if (status == Status.PAUSED) {
 
 						// Flush and stop the source data line
-						if (sourceDataLine != null && sourceDataLine.isRunning()) {
-							sourceDataLine.flush();
-							sourceDataLine.stop();
+						if (outlet.getSourceDataLine() != null && outlet.getSourceDataLine().isRunning()) {
+							outlet.getSourceDataLine().flush();
+							outlet.getSourceDataLine().stop();
 						}
 						try {
 							while (status == Status.PAUSED) {
@@ -939,11 +936,11 @@ public class StreamPlayer implements Callable<Void> {
 			}
 
 			// Free audio resources.
-			if (sourceDataLine != null) {
-				sourceDataLine.drain();
-				sourceDataLine.stop();
-				sourceDataLine.close();
-				sourceDataLine = null;
+			if (outlet.getSourceDataLine() != null) {
+				outlet.getSourceDataLine().drain();
+				outlet.getSourceDataLine().stop();
+				outlet.getSourceDataLine().close();
+				outlet.setSourceDataLine(null);
 			}
 
 			// Close stream.
@@ -1073,8 +1070,8 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return true, if successful
 	 */
-	private boolean hasControl(final Type control, final Control component) {
-		return component != null && (sourceDataLine != null) && (sourceDataLine.isControlSupported(control));
+	public boolean hasControl(final Type control, final Control component) {
+		return component != null && (outlet.getSourceDataLine() != null) && (outlet.getSourceDataLine().isControlSupported(control));
 	}
 
 	/**
@@ -1183,13 +1180,9 @@ public class StreamPlayer implements Callable<Void> {
 		return positionByte;
 	}
 
-	/**
-	 * Gets the source data line.
-	 *
-	 * @return The SourceDataLine
-	 */
-	public SourceDataLine getSourceDataLine() {
-		return sourceDataLine;
+	/** The source data line. */
+	public Outlet getOutlet() {
+		return outlet;
 	}
 
 	/**
