@@ -197,13 +197,15 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void sourceDataLine() {
-        final SourceDataLine sourceDataLine = player.getOutlet().getSourceDataLine();
+    void sourceDataLine() throws StreamPlayerException {
+        assertNull(player.getSourceDataLine());
 
+        player.open(audioFile);
+        assertNotNull(player.getSourceDataLine());
 
-        assertNotNull(sourceDataLine);
+        player.play();
 
-        fail("Test not done");
+        assertNotNull(player.getSourceDataLine());
     }
 
     @Test

@@ -82,7 +82,7 @@ public class StreamPlayer implements Callable<Void> {
 
 	/** The audio file format. */
 	private AudioFileFormat audioFileFormat;
-	
+
 	// -------------------LOCKS---------------------
 
 	/**
@@ -1385,4 +1385,7 @@ public class StreamPlayer implements Callable<Void> {
 		return logger;
 	}
 
+	public SourceDataLine getSourceDataLine() {
+		return outlet.getSourceDataLine();
+	}
 }

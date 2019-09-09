@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import javax.sound.sampled.SourceDataLine;
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -155,5 +156,17 @@ public class SourceDataLineTest {
 
         player.setMute(false);
         assertFalse(player.getMute());
+    }
+
+    @Test
+    void sourceDataLine() throws StreamPlayerException {
+        assertNull(player.getSourceDataLine());
+
+        player.open(audioFile);
+        assertNotNull(player.getSourceDataLine());
+
+        player.play();
+
+        assertNotNull(player.getSourceDataLine());
     }
 }
