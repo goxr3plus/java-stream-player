@@ -88,9 +88,6 @@ public class StreamPlayer implements Callable<Void> {
 
 	// -------------------CONTROLS---------------------
 
-	/** The pan control. */
-	private FloatControl panControl;
-
 	/** The mute control. */
 	private BooleanControl muteControl;
 
@@ -213,7 +210,7 @@ public class StreamPlayer implements Callable<Void> {
 
 		// Controls
 		outlet.setGainControl(null);
-		panControl = null;
+		outlet.setPanControl(null);
 		outlet.setBalanceControl(null);
 		// sampleRateControl = null
 
@@ -534,8 +531,8 @@ public class StreamPlayer implements Callable<Void> {
 
 				// PanControl?
 				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
-					panControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN);
-				else panControl = null;
+					outlet.setPanControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN));
+				else outlet.setPanControl(null);
 
 				// SampleRate?
 				// if (sourceDataLine.isControlSupported(FloatControl.Type.SAMPLE_RATE))
@@ -1125,7 +1122,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return The Precision Value
 	 */
 	public float getPrecision() {
-		return !hasControl(FloatControl.Type.PAN, panControl) ? 0.0F : panControl.getPrecision();
+		return !hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getPrecision();
 
 	}
 
@@ -1135,7 +1132,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @return The Pan Value
 	 */
 	public float getPan() {
-		return !hasControl(FloatControl.Type.PAN, panControl) ? 0.0F : panControl.getValue();
+		return !hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getValue();
 
 	}
 
@@ -1240,10 +1237,10 @@ public class StreamPlayer implements Callable<Void> {
 	 */
 	public void setPan(final double fPan) {
 
-		if (!hasControl(FloatControl.Type.PAN, panControl) || fPan < -1.0 || fPan > 1.0)
+		if (!hasControl(FloatControl.Type.PAN, outlet.getPanControl()) || fPan < -1.0 || fPan > 1.0)
 			return;
 		logger.info(() -> "Pan : " + fPan);
-		panControl.setValue((float) fPan);
+		outlet.getPanControl().setValue((float) fPan);
 		generateEvent(Status.PAN, getEncodedStreamPosition(), null);
 
 	}

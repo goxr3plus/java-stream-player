@@ -6,6 +6,16 @@ public class Outlet {
 
     private FloatControl balanceControl;
     private FloatControl gainControl;
+    private FloatControl panControl;
+
+
+    public FloatControl getPanControl() {
+        return panControl;
+    }
+
+    public void setPanControl(FloatControl panControl) {
+        this.panControl = panControl;
+    }
 
     public FloatControl getBalanceControl() {
         return balanceControl;
