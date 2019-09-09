@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 
 import static java.lang.Math.log10;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
 
 public class SourceDataLineTest {
@@ -113,5 +114,25 @@ public class SourceDataLineTest {
         // Verify
         assertEquals(0, initialBalance);
         assertEquals(wantedBalance, actualBalance);
+    }
+
+    @Test
+    void pan() throws StreamPlayerException {
+        double delta = 1e-6;
+        final float initialPan = player.getPan();
+        assertEquals(0, initialPan);
+
+        player.open(audioFile);
+        player.play();
+
+        double pan = -0.9;
+        player.setPan(pan);
+        assertEquals(pan, player.getPan(), delta);
+
+        double outsideRange = 1.1;
+        player.setPan(outsideRange);
+        assertEquals(pan, player.getPan(), delta);
+
+//        fail("Test not done");
     }
 }
