@@ -34,8 +34,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
-import javax.sound.sampled.Control;
-import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
@@ -1081,18 +1079,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	}
 
 	/**
-	 * Check if the <b>Control</b> is Supported by m_line.
-	 *
-	 * @param control the control
-	 * @param component the component
-	 *
-	 * @return true, if successful
-	 */
-	public boolean hasControl(final Type control, final Control component) {
-		return component != null && (outlet.getSourceDataLine() != null) && (outlet.getSourceDataLine().isControlSupported(control));
-	}
-
-	/**
 	 * Returns Gain value.
 	 *
 	 * @return The Gain Value
@@ -1100,7 +1086,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public float getGainValue() {
 
-		if (hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
+		if (outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl(), this)) {
 			return outlet.getGainControl().getValue();
         } else {
             return 0.0F;
@@ -1114,7 +1100,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public float getMaximumGain() {
-		return !hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMaximum();
+		return !outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl(), this) ? 0.0F : outlet.getGainControl().getMaximum();
 
 	}
 
@@ -1126,7 +1112,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public float getMinimumGain() {
 
-		return !hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMinimum();
+		return !outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl(), this) ? 0.0F : outlet.getGainControl().getMinimum();
 
 	}
 
@@ -1137,7 +1123,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public float getPrecision() {
-		return !hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getPrecision();
+		return !outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl(), this) ? 0.0F : outlet.getPanControl().getPrecision();
 
 	}
 
@@ -1148,7 +1134,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public float getPan() {
-		return !hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getValue();
+		return !outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl(), this) ? 0.0F : outlet.getPanControl().getValue();
 
 	}
 
@@ -1159,7 +1145,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public boolean getMute() {
-		return hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue();
+		return outlet.hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl(), this) && outlet.getMuteControl().getValue();
 	}
 
 	/**
@@ -1169,7 +1155,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public float getBalance() {
-		return !hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) ? 0f : outlet.getBalanceControl().getValue();
+		return !outlet.hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl(), this) ? 0f : outlet.getBalanceControl().getValue();
 	}
 
 	/****
@@ -1256,7 +1242,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public void setPan(final double fPan) {
 
-		if (!hasControl(FloatControl.Type.PAN, outlet.getPanControl()) || fPan < -1.0 || fPan > 1.0)
+		if (!outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl(), this) || fPan < -1.0 || fPan > 1.0)
 			return;
 		logger.info(() -> "Pan : " + fPan);
 		outlet.getPanControl().setValue((float) fPan);
@@ -1272,7 +1258,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public void setGain(final double fGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
+		if (isPlaying() || isPaused() && outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl(), this)) {
             final double logScaleGain = 20 * Math.log10(fGain);
 			outlet.getGainControl().setValue((float) logScaleGain);
         }
@@ -1280,7 +1266,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	@Override
 	public void setLogScaleGain(final double logScaleGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
+		if (isPlaying() || isPaused() && outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl(), this)) {
 			outlet.getGainControl().setValue((float) logScaleGain);
 		}
 	}
@@ -1292,7 +1278,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public void setMute(final boolean mute) {
-		if (hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue() != mute)
+		if (outlet.hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl(), this) && outlet.getMuteControl().getValue() != mute)
 			outlet.getMuteControl().setValue(mute);
 	}
 
@@ -1305,7 +1291,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public void setBalance(final float fBalance) {
-		if (hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) && fBalance >= -1.0 && fBalance <= 1.0)
+		if (outlet.hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl(), this) && fBalance >= -1.0 && fBalance <= 1.0)
 			outlet.getBalanceControl().setValue(fBalance);
 		else
 			try {

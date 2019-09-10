@@ -1,6 +1,7 @@
 package com.goxr3plus.streamplayer.stream;
 
 import javax.sound.sampled.BooleanControl;
+import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.SourceDataLine;
 
@@ -51,5 +52,19 @@ public class Outlet {
 
     public void setSourceDataLine(SourceDataLine sourceDataLine) {
         this.sourceDataLine = sourceDataLine;
+    }
+
+
+    /**
+     * Check if the <b>Control</b> is Supported by m_line.
+     *
+     * @param control the control
+     * @param component the component
+     *
+     * @param streamPlayer
+     * @return true, if successful
+     */
+    public boolean hasControl(final Control.Type control, final Control component, StreamPlayer streamPlayer) {
+        return component != null && (getSourceDataLine() != null) && (getSourceDataLine().isControlSupported(control));
     }
 }
