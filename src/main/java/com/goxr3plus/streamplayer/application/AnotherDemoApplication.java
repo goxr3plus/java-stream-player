@@ -3,6 +3,7 @@ package com.goxr3plus.streamplayer.application;
 import com.goxr3plus.streamplayer.enums.Status;
 import com.goxr3plus.streamplayer.stream.StreamPlayer;
 import com.goxr3plus.streamplayer.stream.StreamPlayerEvent;
+import com.goxr3plus.streamplayer.stream.StreamPlayerInterface;
 import com.goxr3plus.streamplayer.stream.StreamPlayerListener;
 
 import java.io.File;
@@ -16,10 +17,10 @@ public class AnotherDemoApplication  {
 
 	private final String audioFileName = "Logic - Ballin [Bass Boosted].mp3";
 
-	private StreamPlayer streamPlayer;
+	private StreamPlayerInterface streamPlayer;
 	private StreamPlayerListener listener;
 
-	public AnotherDemoApplication(StreamPlayer streamPlayer) {
+	public AnotherDemoApplication(StreamPlayerInterface streamPlayer) {
 		this.streamPlayer = streamPlayer;
 		this.listener = new AnotherStreamPlayerListener(audioFileName, streamPlayer);
 

@@ -60,14 +60,14 @@ import javazoom.spi.PropertiesContainer;
  * @author GOXR3PLUS (www.goxr3plus.co.nf)
  * @author JavaZOOM (www.javazoom.net)
  */
-public class StreamPlayer implements Callable<Void> {
+public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	/**
 	 * Class logger
 	 */
 	private Logger logger;
 
-	// -------------------AUDIO---------------------
+	// -------------------AUDIO----------------,-----
 
 	private volatile Status status = Status.NOT_SPECIFIED;
 
@@ -180,6 +180,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * Freeing the resources.
 	 */
+	@Override
 	public void reset() {
 
 		// Close the stream
@@ -237,6 +238,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param streamPlayerListener the listener
 	 */
+	@Override
 	public void addStreamPlayerListener(final StreamPlayerListener streamPlayerListener) {
 		listeners.add(streamPlayerListener);
 	}
@@ -246,6 +248,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param streamPlayerListener the listener
 	 */
+	@Override
 	public void removeStreamPlayerListener(final StreamPlayerListener streamPlayerListener) {
 		if (listeners != null)
 			listeners.remove(streamPlayerListener);
@@ -259,6 +262,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
+	@Override
 	public void open(final Object object) throws StreamPlayerException {
 
 		logger.info(() -> "open(" + object + ")\n");
@@ -407,6 +411,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param speedFactor speedFactor
 	 */
+	@Override
 	public void setSpeedFactor(final double speedFactor) {
 		this.speedFactor = speedFactor;
 
@@ -556,6 +561,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
+	@Override
 	public void play() throws StreamPlayerException {
 		if (status == Status.STOPPED)
 			initAudioInputStream();
@@ -593,6 +599,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return true, if successful
 	 */
+	@Override
 	public boolean pause() {
 		if (outlet.getSourceDataLine() == null || status != Status.PLAYING)
 			return false;
@@ -608,6 +615,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Player Status = STOPPED.<br>
 	 * Thread should free Audio resources.
 	 */
+	@Override
 	public void stop() {
 		if (status == Status.STOPPED)
 			return;
@@ -625,6 +633,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return False if failed(so simple...)
 	 */
+	@Override
 	public boolean resume() {
 		if (outlet.getSourceDataLine() == null || status != Status.PAUSED)
 			return false;
@@ -686,6 +695,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
+	@Override
 	public long seekBytes(final long bytes) throws StreamPlayerException {
 		long totalSkipped = 0;
 
@@ -748,6 +758,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param seconds Seconds to Skip
 	 */
+	@Override
 	//todo not finished needs more validations
 	public long seekSeconds(int seconds) throws StreamPlayerException {
 		int durationInSeconds = this.getDurationInSeconds();
@@ -781,6 +792,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param seconds Seconds to Skip
 	 */
+	@Override
 	public long seekTo(int seconds) throws StreamPlayerException {
 		int durationInSeconds = this.getDurationInSeconds();
 
@@ -815,6 +827,8 @@ public class StreamPlayer implements Callable<Void> {
 		}
 	}
 
+
+	@Override
 	public int getDurationInSeconds() {
 
 		// Audio resources from file||URL||inputStream.
@@ -968,6 +982,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Position of the encoded stream in term of bytes
 	 */
+	@Override
 	public int getEncodedStreamPosition() {
 		int position = -1;
 		if (dataSource instanceof File && encodedAudioInputStream != null)
@@ -999,6 +1014,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return -1 maximum buffer size.
 	 */
+	@Override
 	public int getLineBufferSize() {
 		return lineBufferSize;
 	}
@@ -1008,6 +1024,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The current line buffer size
 	 */
+	@Override
 	public int getLineCurrentBufferSize() {
 		return currentLineBufferSize;
 	}
@@ -1017,6 +1034,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return A List of available Mixers
 	 */
+	@Override
 	public List<String> getMixers() {
 		final List<String> mixers = new ArrayList<>();
 
@@ -1079,6 +1097,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Gain Value
 	 */
+	@Override
 	public float getGainValue() {
 
 		if (hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
@@ -1093,6 +1112,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Maximum Gain Value
 	 */
+	@Override
 	public float getMaximumGain() {
 		return !hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMaximum();
 
@@ -1103,6 +1123,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Minimum Gain Value
 	 */
+	@Override
 	public float getMinimumGain() {
 
 		return !hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMinimum();
@@ -1114,6 +1135,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Precision Value
 	 */
+	@Override
 	public float getPrecision() {
 		return !hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getPrecision();
 
@@ -1124,6 +1146,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Pan Value
 	 */
+	@Override
 	public float getPan() {
 		return !hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getValue();
 
@@ -1134,6 +1157,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return True if muted , False if not
 	 */
+	@Override
 	public boolean getMute() {
 		return hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue();
 	}
@@ -1143,6 +1167,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Balance Value
 	 */
+	@Override
 	public float getBalance() {
 		return !hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) ? 0f : outlet.getBalanceControl().getValue();
 	}
@@ -1152,6 +1177,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return encodedAudioLength
 	 */
+	@Override
 	public long getTotalBytes() {
 		return encodedAudioLength;
 	}
@@ -1169,6 +1195,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * @return BytePosition
 	 */
+	@Override
 	public int getPositionByte() {
 		final int positionByte = AudioSystem.NOT_SPECIFIED;
 		if (audioProperties != null) {
@@ -1190,6 +1217,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Player Status
 	 */
+	@Override
 	public Status getStatus() {
 		return status;
 	}
@@ -1214,6 +1242,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param size -1 means maximum buffer size available.
 	 */
+	@Override
 	public void setLineBufferSize(final int size) {
 		lineBufferSize = size;
 	}
@@ -1224,6 +1253,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param fPan the new pan
 	 */
+	@Override
 	public void setPan(final double fPan) {
 
 		if (!hasControl(FloatControl.Type.PAN, outlet.getPanControl()) || fPan < -1.0 || fPan > 1.0)
@@ -1240,6 +1270,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param fGain The new gain value
 	 */
+	@Override
 	public void setGain(final double fGain) {
 		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
             final double logScaleGain = 20 * Math.log10(fGain);
@@ -1247,6 +1278,7 @@ public class StreamPlayer implements Callable<Void> {
         }
 	}
 
+	@Override
 	public void setLogScaleGain(final double logScaleGain) {
 		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
 			outlet.getGainControl().setValue((float) logScaleGain);
@@ -1258,6 +1290,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param mute True to mute the audio of False to unmute it
 	 */
+	@Override
 	public void setMute(final boolean mute) {
 		if (hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue() != mute)
 			outlet.getMuteControl().setValue(mute);
@@ -1270,6 +1303,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param fBalance the new balance
 	 */
+	@Override
 	public void setBalance(final float fBalance) {
 		if (hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) && fBalance >= -1.0 && fBalance <= 1.0)
 			outlet.getBalanceControl().setValue(fBalance);
@@ -1287,6 +1321,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param array the array
 	 * @param stop the stop
 	 */
+	@Override
 	public void setEqualizer(final float[] array, final int stop) {
 		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
 			return;
@@ -1302,6 +1337,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param value the value
 	 * @param key the key
 	 */
+	@Override
 	public void setEqualizerKey(final float value, final int key) {
 		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
 			return;
@@ -1314,6 +1350,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * @return The Speech Factor of the Audio
 	 */
+	@Override
 	public double getSpeedFactor() {
 		return this.speedFactor;
 	}
@@ -1323,6 +1360,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return If Status==STATUS.UNKNOWN.
 	 */
+	@Override
 	public boolean isUnknown() {
 		return status == Status.NOT_SPECIFIED;
 	}
@@ -1332,6 +1370,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is playing ,<b>false</b> if not.
 	 */
+	@Override
 	public boolean isPlaying() {
 		return status == Status.PLAYING;
 	}
@@ -1341,6 +1380,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is paused ,<b>false</b> if not.
 	 */
+	@Override
 	public boolean isPaused() {
 		return status == Status.PAUSED;
 	}
@@ -1350,6 +1390,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is paused/playing,<b>false</b> if not
 	 */
+	@Override
 	public boolean isPausedOrPlaying() {
 		return isPlaying() || isPaused();
 	}
@@ -1359,6 +1400,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is stopped ,<b>false</b> if not
 	 */
+	@Override
 	public boolean isStopped() {
 		return status == Status.STOPPED;
 	}
@@ -1368,6 +1410,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is opened ,<b>false</b> if not
 	 */
+	@Override
 	public boolean isOpened() {
 		return status == Status.OPENED;
 	}
@@ -1377,6 +1420,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is seeking ,<b>false</b> if not
 	 */
+	@Override
 	public boolean isSeeking() {
 		return status == Status.SEEKING;
 	}
@@ -1385,6 +1429,7 @@ public class StreamPlayer implements Callable<Void> {
 		return logger;
 	}
 
+	@Override
 	public SourceDataLine getSourceDataLine() {
 		return outlet.getSourceDataLine();
 	}
