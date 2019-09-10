@@ -169,4 +169,23 @@ public class SourceDataLineTest {
 
         assertNotNull(player.getSourceDataLine());
     }
+
+    @Test
+   // @Timeout(1)
+    void reset() throws StreamPlayerException {
+
+        assertNull(player.getSourceDataLine());
+
+        player.open(audioFile);
+        assertNotNull(player.getSourceDataLine());
+
+//        player.play();
+//        assertNotNull(player.getSourceDataLine());
+
+        player.reset();
+        assertNull(player.getSourceDataLine());
+        player.stop();
+
+
+    }
 }
