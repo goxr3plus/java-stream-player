@@ -185,7 +185,13 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		synchronized (audioLock) {
 			closeStream();
 		}
-		resetOutlet();
+
+		// Source Data Line
+		if (outlet.getSourceDataLine() != null) {
+			outlet.getSourceDataLine().flush();
+			outlet.getSourceDataLine().close();
+			outlet.setSourceDataLine(null);
+		}
 
 		// AudioFile
 		audioInputStream = null;
@@ -194,27 +200,15 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		encodedAudioLength = -1;
 
 		// Controls
-		resetControls();
+		outlet.setGainControl(null);
+		outlet.setPanControl(null);
+		outlet.setBalanceControl(null);
+		// sampleRateControl = null
 
 		// Notify the Status
 		status = Status.NOT_SPECIFIED;
 		generateEvent(Status.NOT_SPECIFIED, AudioSystem.NOT_SPECIFIED, null);
 
-	}
-
-	private void resetControls() {
-		outlet.setGainControl(null);
-		outlet.setPanControl(null);
-		outlet.setBalanceControl(null);
-	}
-
-	private void resetOutlet() {
-		// Source Data Line
-		if (outlet.getSourceDataLine() != null) {
-			outlet.getSourceDataLine().flush();
-			outlet.getSourceDataLine().close();
-			outlet.setSourceDataLine(null);
-		}
 	}
 
 	/**
