@@ -1085,12 +1085,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public float getGainValue() {
-
-		if (outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
-			return outlet.getGainControl().getValue();
-        } else {
-            return 0.0F;
-        }
+		return outlet.getGainValue();
     }
 
 	/**

@@ -66,4 +66,18 @@ public class Outlet {
     public boolean hasControl(final Control.Type control, final Control component) {
         return component != null && (getSourceDataLine() != null) && (getSourceDataLine().isControlSupported(control));
     }
+
+    /**
+     * Returns Gain value.
+     *
+     * @return The Gain Value
+     */
+    public float getGainValue() {
+
+        if (hasControl(FloatControl.Type.MASTER_GAIN, getGainControl())) {
+            return getGainControl().getValue();
+        } else {
+            return 0.0F;
+        }
+    }
 }
