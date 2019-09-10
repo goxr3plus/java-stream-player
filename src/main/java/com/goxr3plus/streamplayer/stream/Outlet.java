@@ -61,10 +61,9 @@ public class Outlet {
      * @param control the control
      * @param component the component
      *
-     * @param streamPlayer
      * @return true, if successful
      */
-    public boolean hasControl(final Control.Type control, final Control component, StreamPlayer streamPlayer) {
+    public boolean hasControl(final Control.Type control, final Control component) {
         return component != null && (getSourceDataLine() != null) && (getSourceDataLine().isControlSupported(control));
     }
 }
