@@ -108,17 +108,6 @@ public interface StreamPlayerInterface {
 
     int getDurationInSeconds();
 
-//    /**
-//     * Main loop.
-//     * <p>
-//     * Player Status == STOPPED || SEEKING = End of Thread + Freeing Audio
-//     * Resources.<br>
-//     * Player Status == PLAYING = Audio stream data sent to Audio line.<br>
-//     * Player Status == PAUSED = Waiting for another status.
-//     */
-//    @Override
-//    Void call();
-
     /**
      * Calculates the current position of the encoded audio based on <br>
      * <b>nEncodedBytes = encodedAudioLength -
@@ -198,7 +187,7 @@ public interface StreamPlayerInterface {
      */
     float getBalance();
 
-    /****
+    /**
      * Return the total size of this file in bytes.
      *
      * @return encodedAudioLength
