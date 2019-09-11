@@ -186,7 +186,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 			closeStream();
 		}
 
-		outlet.stopAndFreeDataLine();
+		outlet.flushAndFreeDataLine();
 
 		// AudioFile
 		audioInputStream = null;
@@ -759,17 +759,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		return seekBytes(bytes);
 	}
 
-//	/**
-//	 * Go to X time of the Audio
-//	 * See  {@link #seek(long)}
-//	 *
-//	 * @param pattern A string in the format (HH:MM:SS) WHERE h = HOURS , M = minutes , S = seconds
-//	 */
-//	public void seekTo(String pattern) throws StreamPlayerException {
-//		long bytes = 0;
-//
-//		seek(bytes);
-//	}
 
 	private void validateSeconds(int seconds, int durationInSeconds) {
 		if (seconds < 0) {
@@ -851,8 +840,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 							// Compute position in bytes in encoded stream.
 							final int nEncodedBytes = getEncodedStreamPosition();
-
-							// System.err.println(trimBuffer[0] + " , Data Length :" + trimBuffer.length)
 
 							// Notify all registered Listeners
 							listeners.forEach(listener -> {
@@ -1102,16 +1089,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	public long getTotalBytes() {
 		return encodedAudioLength;
 	}
-
-	/**
-	 * @return
-	 */
-	// public int getByteLength() {
-	// return audioProperties == null ||
-	// !audioProperties.containsKey("audio.length.bytes") ?
-	// AudioSystem.NOT_SPECIFIED
-	// : ((Integer) audioProperties.get("audio.length.bytes")).intValue();
-	// }
 
 	/**
 	 * @return BytePosition
