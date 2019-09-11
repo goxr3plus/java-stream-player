@@ -3,6 +3,7 @@ package com.goxr3plus.streamplayer.stream;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.BDDMockito;
 
 import javax.sound.sampled.SourceDataLine;
 import java.io.File;
@@ -10,6 +11,7 @@ import java.util.logging.Logger;
 
 import static java.lang.Math.log10;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.booleanThat;
 import static org.mockito.Mockito.mock;
 
 public class SourceDataLineTest {
@@ -168,5 +170,23 @@ public class SourceDataLineTest {
         player.play();
 
         assertNotNull(player.getSourceDataLine());
+    }
+
+    @Test
+    void playAndPause() throws StreamPlayerException, InterruptedException {
+        boolean listen = true;
+        player.open(audioFile);
+        player.play();
+        player.seekTo(30);
+        if (listen) Thread.sleep(2000);
+
+        player.pause();
+        if (listen) Thread.sleep(1000);
+
+        player.resume();  // TODO: Examine what happens if play() is called instead.
+        if (listen) Thread.sleep(2000);
+        //player.stop();
+
+        // TODO: asserts and listen=false
     }
 }
