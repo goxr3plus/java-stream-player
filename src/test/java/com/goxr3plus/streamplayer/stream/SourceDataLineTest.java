@@ -178,13 +178,13 @@ public class SourceDataLineTest {
         player.open(audioFile);
         player.play();
         player.seekTo(30);
-        if (listen) Thread.sleep(2000);
+        if (listen) Thread.sleep(200);
 
         player.pause();
-        if (listen) Thread.sleep(1000);
+        if (listen) Thread.sleep(100);
 
         player.resume();  // TODO: Examine what happens if play() is called instead.
-        if (listen) Thread.sleep(2000);
+        if (listen) Thread.sleep(200);
         //player.stop();
 
         // TODO: asserts and listen=false

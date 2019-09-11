@@ -186,12 +186,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 			closeStream();
 		}
 
-		// Source Data Line
-		if (outlet.getSourceDataLine() != null) {
-			outlet.getSourceDataLine().flush();
-			outlet.getSourceDataLine().close();
-			outlet.setSourceDataLine(null);
-		}
+		outlet.stopAndFreeDataLine();
 
 		// AudioFile
 		audioInputStream = null;
@@ -937,7 +932,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				}
 			}
 			// Free audio resources.
-			outlet.stopAndFreeDataLine();
+			outlet.drainStopAndFreeDataLine();
 
 			// Close stream.
 			closeStream();
