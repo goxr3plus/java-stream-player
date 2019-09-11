@@ -925,20 +925,8 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 						}
 
 					} else if (status == Status.PAUSED) {
+						flushAndStopOutlet();
 
-						// Flush and stop the source data line
-						if (outlet.getSourceDataLine() != null && outlet.getSourceDataLine().isRunning()) {
-							outlet.getSourceDataLine().flush();
-							outlet.getSourceDataLine().stop();
-						}
-						try {
-							while (status == Status.PAUSED) {
-								Thread.sleep(50);
-							}
-						} catch (final InterruptedException ex) {
-							Thread.currentThread().interrupt();
-							logger.warning("Thread cannot sleep.\n" + ex);
-						}
 					}
 				} catch (final IOException ex) {
 					logger.log(Level.WARNING, "\"Decoder Exception: \" ", ex);
@@ -946,14 +934,8 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 					generateEvent(Status.STOPPED, getEncodedStreamPosition(), null);
 				}
 			}
-
 			// Free audio resources.
-			if (outlet.getSourceDataLine() != null) {
-				outlet.getSourceDataLine().drain();
-				outlet.getSourceDataLine().stop();
-				outlet.getSourceDataLine().close();
-				outlet.setSourceDataLine(null);
-			}
+			outlet.stopAndFreeDataLine();
 
 			// Close stream.
 			closeStream();
@@ -971,6 +953,22 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		logger.info("Decoding thread completed");
 
 		return null;
+	}
+
+	private void flushAndStopOutlet() {
+		// Flush and stop the source data line
+		if (outlet.getSourceDataLine() != null && outlet.getSourceDataLine().isRunning()) {
+			outlet.getSourceDataLine().flush();
+			outlet.getSourceDataLine().stop();
+		}
+		try {
+			while (status == Status.PAUSED) {
+				Thread.sleep(50);
+			}
+		} catch (final InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			logger.warning("Thread cannot sleep.\n" + ex);
+		}
 	}
 
 	/**

@@ -80,4 +80,14 @@ public class Outlet {
             return 0.0F;
         }
     }
+
+    void stopAndFreeDataLine() {
+        // Free audio resources.
+        if (sourceDataLine != null) {
+            sourceDataLine.drain();
+            sourceDataLine.stop();
+            sourceDataLine.close();
+            this.sourceDataLine = null;
+        }
+    }
 }
