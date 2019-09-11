@@ -198,7 +198,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		outlet.setGainControl(null);
 		outlet.setPanControl(null);
 		outlet.setBalanceControl(null);
-		// sampleRateControl = null
 
 		// Notify the Status
 		status = Status.NOT_SPECIFIED;
@@ -365,7 +364,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		audioProperties.put("basicplayer.sourcedataline", outlet.getSourceDataLine());
 
 		// Keep this final reference for the lambda expression
-		final Map<String, Object> audioPropertiesCopy = audioProperties;
+		final Map<String, Object> audioPropertiesCopy = audioProperties; // TODO: Remove, it's meaningless.
 
 		// Notify all registered StreamPlayerListeners
 		listeners.forEach(listener -> listener.opened(dataSource, audioPropertiesCopy));
@@ -502,45 +501,33 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 		logger.info("Entered OpenLine()!:\n");
 
-		final SourceDataLine sourceDataLine = outlet.getSourceDataLine();
-		if (sourceDataLine != null) {
+		if (outlet.getSourceDataLine() != null) {
 			final AudioFormat audioFormat = audioInputStream.getFormat();
-			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : sourceDataLine.getBufferSize();
-			sourceDataLine.open(audioFormat, currentLineBufferSize);
+			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
+			outlet.getSourceDataLine().open(audioFormat, currentLineBufferSize);
 
 			// opened?
-			if (sourceDataLine.isOpen()) {
-				// logger.info(() -> "Open Line Buffer Size=" + bufferSize + "\n");
-
-				/*-- Display supported controls --*/
-				// Control[] c = m_line.getControls()
+			if (outlet.getSourceDataLine().isOpen()) {
 
 				// Master_Gain Control?
-				if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
-					outlet.setGainControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN));
+				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.MASTER_GAIN))
+					outlet.setGainControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.MASTER_GAIN));
 				else outlet.setGainControl(null);
 
 				// PanControl?
-				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
-					outlet.setPanControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN));
+				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.PAN))
+					outlet.setPanControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.PAN));
 				else outlet.setPanControl(null);
 
-				// SampleRate?
-				// if (sourceDataLine.isControlSupported(FloatControl.Type.SAMPLE_RATE))
-				// sampleRateControl = (FloatControl)
-				// sourceDataLine.getControl(FloatControl.Type.SAMPLE_RATE);
-				// else
-				// sampleRateControl = null
-
 				// Mute?
-				BooleanControl muteControl1 = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
-					? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
+				BooleanControl muteControl1 = outlet.getSourceDataLine().isControlSupported(BooleanControl.Type.MUTE)
+					? (BooleanControl) outlet.getSourceDataLine().getControl(BooleanControl.Type.MUTE)
 					: null;
 				outlet.setMuteControl(muteControl1);
 
 				// Speakers Balance?
-				FloatControl balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
-					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
+				FloatControl balanceControl = outlet.getSourceDataLine().isControlSupported(FloatControl.Type.BALANCE)
+					? (FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.BALANCE)
 					: null;
 				outlet.setBalanceControl(balanceControl);
 			}
