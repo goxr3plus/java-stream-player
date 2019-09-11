@@ -925,7 +925,9 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 						}
 
 					} else if (status == Status.PAUSED) {
-						flushAndStopOutlet();
+						// Flush and stop the source data line
+						outlet.flushAndStop();
+						goOutOfPause();
 
 					}
 				} catch (final IOException ex) {
@@ -955,12 +957,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		return null;
 	}
 
-	private void flushAndStopOutlet() {
-		// Flush and stop the source data line
-		if (outlet.getSourceDataLine() != null && outlet.getSourceDataLine().isRunning()) {
-			outlet.getSourceDataLine().flush();
-			outlet.getSourceDataLine().stop();
-		}
+	private void goOutOfPause() {
 		try {
 			while (status == Status.PAUSED) {
 				Thread.sleep(50);

@@ -1,5 +1,7 @@
 package com.goxr3plus.streamplayer.stream;
 
+import com.goxr3plus.streamplayer.enums.Status;
+
 import javax.sound.sampled.BooleanControl;
 import javax.sound.sampled.Control;
 import javax.sound.sampled.FloatControl;
@@ -90,4 +92,13 @@ public class Outlet {
             this.sourceDataLine = null;
         }
     }
+
+    void flushAndStop() {
+        // Flush and stop the source data line
+        if (getSourceDataLine() != null && getSourceDataLine().isRunning()) {
+            getSourceDataLine().flush();
+            getSourceDataLine().stop();
+        }
+    }
+
 }
