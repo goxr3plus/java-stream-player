@@ -385,11 +385,16 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 		if (outlet.getSourceDataLine() == null)
 			createLine();
-		if (!outlet.getSourceDataLine().isOpen())
-			openLine();
-		else if (!outlet.getSourceDataLine().getFormat().equals(audioInputStream == null ? null : audioInputStream.getFormat())) {
-			outlet.getSourceDataLine().close();
-			openLine();
+		if (!outlet.getSourceDataLine().isOpen()) {
+			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
+			openLine(audioInputStream.getFormat(), currentLineBufferSize);
+		} else {
+			AudioFormat format = audioInputStream == null ? null : audioInputStream.getFormat();
+			if (!outlet.getSourceDataLine().getFormat().equals(format)) { // TODO: Check if bug, does equals work as intended?
+				outlet.getSourceDataLine().close();
+				currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
+				openLine(audioInputStream.getFormat(), currentLineBufferSize);
+			}
 		}
 	}
 
@@ -496,14 +501,14 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 * Open the line.
 	 *
 	 * @throws LineUnavailableException the line unavailable exception
+	 * @param audioFormat
+	 * @param currentLineBufferSize
 	 */
-	private void openLine() throws LineUnavailableException {
+	private void openLine(AudioFormat audioFormat, int currentLineBufferSize) throws LineUnavailableException {
 
 		logger.info("Entered OpenLine()!:\n");
 
 		if (outlet.getSourceDataLine() != null) {
-			final AudioFormat audioFormat = audioInputStream.getFormat();
-			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
 			outlet.getSourceDataLine().open(audioFormat, currentLineBufferSize);
 
 			// opened?

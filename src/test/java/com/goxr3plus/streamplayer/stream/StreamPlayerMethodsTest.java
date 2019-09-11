@@ -344,7 +344,7 @@ public class StreamPlayerMethodsTest {
     }
 
 
-    // The methods tested below aren't used otherwhere in this project, nor in XR3Player
+    // The methods tested below aren't used elsewhere in this project, nor in XR3Player
 
     @Test
     void lineBufferSize() {
