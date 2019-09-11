@@ -67,7 +67,7 @@ public class Outlet {
      * @return true, if successful
      */
     public boolean hasControl(final Control.Type control, final Control component) {
-        return component != null && (getSourceDataLine() != null) && (getSourceDataLine().isControlSupported(control));
+        return component != null && (sourceDataLine != null) && (sourceDataLine.isControlSupported(control));
     }
 
     /**
@@ -95,56 +95,56 @@ public class Outlet {
     }
 
      void stopAndFreeDataLine() {
-        if (getSourceDataLine() != null) {
-            getSourceDataLine().flush();
-            getSourceDataLine().close();
+        if (sourceDataLine != null) {
+            sourceDataLine.flush();
+            sourceDataLine.close();
             this.sourceDataLine = null; // TODO: Is this necessary? Will it not be garbage collected?
         }
     }
 
     void flushAndStop() {
         // Flush and stop the source data line
-        if (getSourceDataLine() != null && getSourceDataLine().isRunning()) {
-            getSourceDataLine().flush();
-            getSourceDataLine().stop();
+        if (sourceDataLine != null && sourceDataLine.isRunning()) {
+            sourceDataLine.flush();
+            sourceDataLine.stop();
         }
     }
 
     boolean isStartable() {
-        return getSourceDataLine() != null && !getSourceDataLine().isRunning();
+        return sourceDataLine != null && !sourceDataLine.isRunning();
     }
     void start() {
-        getSourceDataLine().start();
+        sourceDataLine.start();
     }
 
     void open(AudioFormat audioFormat, int currentLineBufferSize) throws LineUnavailableException {
         logger.info("Entered OpenLine()!:\n");
 
-        if (getSourceDataLine() != null) {
-            getSourceDataLine().open(audioFormat, currentLineBufferSize);
+        if (sourceDataLine != null) {
+            sourceDataLine.open(audioFormat, currentLineBufferSize);
 
             // opened?
-            if (getSourceDataLine().isOpen()) {
+            if (sourceDataLine.isOpen()) {
 
                 // Master_Gain Control?
-                if (getSourceDataLine().isControlSupported(FloatControl.Type.MASTER_GAIN))
-                    setGainControl((FloatControl) getSourceDataLine().getControl(FloatControl.Type.MASTER_GAIN));
+                if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
+                    setGainControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN));
                 else setGainControl(null);
 
                 // PanControl?
-                if (getSourceDataLine().isControlSupported(FloatControl.Type.PAN))
-                    setPanControl((FloatControl) getSourceDataLine().getControl(FloatControl.Type.PAN));
+                if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
+                    setPanControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN));
                 else setPanControl(null);
 
                 // Mute?
-                BooleanControl muteControl1 = getSourceDataLine().isControlSupported(BooleanControl.Type.MUTE)
-                        ? (BooleanControl) getSourceDataLine().getControl(BooleanControl.Type.MUTE)
+                BooleanControl muteControl1 = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
+                        ? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
                         : null;
                 setMuteControl(muteControl1);
 
                 // Speakers Balance?
-                FloatControl balanceControl = getSourceDataLine().isControlSupported(FloatControl.Type.BALANCE)
-                        ? (FloatControl) getSourceDataLine().getControl(FloatControl.Type.BALANCE)
+                FloatControl balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
+                        ? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
                         : null;
                 setBalanceControl(balanceControl);
             }
