@@ -197,12 +197,15 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void sourceDataLine() {
-        final SourceDataLine sourceDataLine = player.getSourceDataLine();
+    void sourceDataLine() throws StreamPlayerException {
+        assertNull(player.getSourceDataLine());
 
-        assertNotNull(sourceDataLine);
+        player.open(audioFile);
+        assertNotNull(player.getSourceDataLine());
 
-        fail("Test not done");
+        player.play();
+
+        assertNotNull(player.getSourceDataLine());
     }
 
     @Test
@@ -295,11 +298,21 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void pan() {
-        player.getPan();
-        player.setPan(1000);
+    void pan() throws StreamPlayerException {
+        double delta = 1e-6;
+        final float initialPan = player.getPan();
+        assertEquals(0, initialPan);
 
-        fail("Test not done");
+        player.open(audioFile);
+        player.play();
+
+        double pan = -0.9;
+        player.setPan(pan);
+        assertEquals(pan, player.getPan(), delta);
+
+        double outsideRange = 1.1;
+        player.setPan(outsideRange);
+        assertEquals(pan, player.getPan(), delta);
     }
 
     @Test
@@ -331,7 +344,7 @@ public class StreamPlayerMethodsTest {
     }
 
 
-    // The methods tested below aren't used otherwhere in this project, nor in XR3Player
+    // The methods tested below aren't used elsewhere in this project, nor in XR3Player
 
     @Test
     void lineBufferSize() {

@@ -3,6 +3,7 @@ package com.goxr3plus.streamplayer.application;
 import com.goxr3plus.streamplayer.enums.Status;
 import com.goxr3plus.streamplayer.stream.StreamPlayer;
 import com.goxr3plus.streamplayer.stream.StreamPlayerEvent;
+import com.goxr3plus.streamplayer.stream.StreamPlayerInterface;
 import com.goxr3plus.streamplayer.stream.StreamPlayerListener;
 
 import java.util.Map;
@@ -10,10 +11,10 @@ import java.util.Map;
 class AnotherStreamPlayerListener implements StreamPlayerListener {
 
     private final String audioFileName;
-    private StreamPlayer streamPlayer;
+    private StreamPlayerInterface streamPlayer;
 
 
-    public AnotherStreamPlayerListener(String audioFileName, StreamPlayer streamPlayer) {
+    public AnotherStreamPlayerListener(String audioFileName, StreamPlayerInterface streamPlayer) {
         this.audioFileName = audioFileName;
         this.streamPlayer = streamPlayer;
     }

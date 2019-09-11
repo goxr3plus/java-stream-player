@@ -34,8 +34,6 @@ import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.BooleanControl;
-import javax.sound.sampled.Control;
-import javax.sound.sampled.Control.Type;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.Line;
@@ -60,14 +58,14 @@ import javazoom.spi.PropertiesContainer;
  * @author GOXR3PLUS (www.goxr3plus.co.nf)
  * @author JavaZOOM (www.javazoom.net)
  */
-public class StreamPlayer implements Callable<Void> {
+public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	/**
 	 * Class logger
 	 */
 	private Logger logger;
 
-	// -------------------AUDIO---------------------
+	// -------------------AUDIO----------------,-----
 
 	private volatile Status status = Status.NOT_SPECIFIED;
 
@@ -82,26 +80,6 @@ public class StreamPlayer implements Callable<Void> {
 
 	/** The audio file format. */
 	private AudioFileFormat audioFileFormat;
-
-	/** The source data line. */
-	private SourceDataLine sourceDataLine;
-
-	// -------------------CONTROLS---------------------
-
-	/** The gain control. */
-	private FloatControl gainControl;
-
-	/** The pan control. */
-	private FloatControl panControl;
-
-	/** The balance control. */
-	private FloatControl balanceControl;
-
-	/** The sample rate control. */
-	// private FloatControl sampleRateControl
-
-	/** The mute control. */
-	private BooleanControl muteControl;
 
 	// -------------------LOCKS---------------------
 
@@ -159,7 +137,10 @@ public class StreamPlayer implements Callable<Void> {
 	// Properties when the File/URL/InputStream is opened.
 	Map<String, Object> audioProperties;
 
-	// -------------------BEGIN OF CONSTRUCTOR---------------------
+	/**
+	 * Responsible for the output SourceDataLine and the controls that depend on it.
+	 */
+	private Outlet outlet;
 
 	/**
 	 * Default parameter less Constructor. A default logger will be used.
@@ -190,12 +171,14 @@ public class StreamPlayer implements Callable<Void> {
 		this.streamPlayerExecutorService = streamPlayerExecutorService;
 		this.eventsExecutorService = eventsExecutorService;
 		listeners = new ArrayList<>();
+		outlet = new Outlet(logger);
 		reset();
 	}
 
 	/**
 	 * Freeing the resources.
 	 */
+	@Override
 	public void reset() {
 
 		// Close the stream
@@ -203,12 +186,7 @@ public class StreamPlayer implements Callable<Void> {
 			closeStream();
 		}
 
-		// Source Data Line
-		if (sourceDataLine != null) {
-			sourceDataLine.flush();
-			sourceDataLine.close();
-			sourceDataLine = null;
-		}
+		outlet.flushAndFreeDataLine();
 
 		// AudioFile
 		audioInputStream = null;
@@ -217,10 +195,9 @@ public class StreamPlayer implements Callable<Void> {
 		encodedAudioLength = -1;
 
 		// Controls
-		gainControl = null;
-		panControl = null;
-		balanceControl = null;
-		// sampleRateControl = null
+		outlet.setGainControl(null);
+		outlet.setPanControl(null);
+		outlet.setBalanceControl(null);
 
 		// Notify the Status
 		status = Status.NOT_SPECIFIED;
@@ -253,6 +230,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param streamPlayerListener the listener
 	 */
+	@Override
 	public void addStreamPlayerListener(final StreamPlayerListener streamPlayerListener) {
 		listeners.add(streamPlayerListener);
 	}
@@ -262,6 +240,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param streamPlayerListener the listener
 	 */
+	@Override
 	public void removeStreamPlayerListener(final StreamPlayerListener streamPlayerListener) {
 		if (listeners != null)
 			listeners.remove(streamPlayerListener);
@@ -275,6 +254,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
+	@Override
 	public void open(final Object object) throws StreamPlayerException {
 
 		logger.info(() -> "open(" + object + ")\n");
@@ -381,10 +361,10 @@ public class StreamPlayer implements Callable<Void> {
 			audioProperties.putAll(audioFormat.properties());
 
 		// Add SourceDataLine
-		audioProperties.put("basicplayer.sourcedataline", sourceDataLine);
+		audioProperties.put("basicplayer.sourcedataline", outlet.getSourceDataLine());
 
 		// Keep this final reference for the lambda expression
-		final Map<String, Object> audioPropertiesCopy = audioProperties;
+		final Map<String, Object> audioPropertiesCopy = audioProperties; // TODO: Remove, it's meaningless.
 
 		// Notify all registered StreamPlayerListeners
 		listeners.forEach(listener -> listener.opened(dataSource, audioPropertiesCopy));
@@ -403,13 +383,18 @@ public class StreamPlayer implements Callable<Void> {
 
 		logger.info("Initiating the line...");
 
-		if (sourceDataLine == null)
+		if (outlet.getSourceDataLine() == null)
 			createLine();
-		if (!sourceDataLine.isOpen())
-			openLine();
-		else if (!sourceDataLine.getFormat().equals(audioInputStream == null ? null : audioInputStream.getFormat())) {
-			sourceDataLine.close();
-			openLine();
+		if (!outlet.getSourceDataLine().isOpen()) {
+			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
+			openLine(audioInputStream.getFormat(), currentLineBufferSize);
+		} else {
+			AudioFormat format = audioInputStream == null ? null : audioInputStream.getFormat();
+			if (!outlet.getSourceDataLine().getFormat().equals(format)) { // TODO: Check if bug, does equals work as intended?
+				outlet.getSourceDataLine().close();
+				currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
+				openLine(audioInputStream.getFormat(), currentLineBufferSize);
+			}
 		}
 	}
 
@@ -423,6 +408,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param speedFactor speedFactor
 	 */
+	@Override
 	public void setSpeedFactor(final double speedFactor) {
 		this.speedFactor = speedFactor;
 
@@ -447,7 +433,7 @@ public class StreamPlayer implements Callable<Void> {
 
 		logger.info("Entered CreateLine()!:\n");
 
-		if (sourceDataLine != null)
+		if (outlet.getSourceDataLine() != null)
 			logger.warning("Warning Source DataLine is not null!\n");
 		else {
 			final AudioFormat sourceFormat = audioInputStream.getFormat();
@@ -494,19 +480,19 @@ public class StreamPlayer implements Callable<Void> {
 			// Continue
 			final Mixer mixer = getMixer(mixerName);
 			if (mixer == null) {
-				sourceDataLine = (SourceDataLine) AudioSystem.getLine(lineInfo);
+				outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
 				mixerName = null;
 			} else {
 				logger.info("Mixer: " + mixer.getMixerInfo());
-				sourceDataLine = (SourceDataLine) mixer.getLine(lineInfo);
+				outlet.setSourceDataLine((SourceDataLine) mixer.getLine(lineInfo));
 			}
 
-			sourceDataLine = (SourceDataLine) AudioSystem.getLine(lineInfo);
+			outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
 
 			// --------------------------------------------------------------------------------
-			logger.info(() -> "Line : " + sourceDataLine);
-			logger.info(() -> "Line Info : " + sourceDataLine.getLineInfo());
-			logger.info(() -> "Line AudioFormat: " + sourceDataLine.getFormat() + "\n");
+			logger.info(() -> "Line : " + outlet.getSourceDataLine());
+			logger.info(() -> "Line Info : " + outlet.getSourceDataLine().getLineInfo());
+			logger.info(() -> "Line AudioFormat: " + outlet.getSourceDataLine().getFormat() + "\n");
 			logger.info("Exited CREATELINE()!:\n");
 		}
 	}
@@ -515,54 +501,11 @@ public class StreamPlayer implements Callable<Void> {
 	 * Open the line.
 	 *
 	 * @throws LineUnavailableException the line unavailable exception
+	 * @param audioFormat
+	 * @param currentLineBufferSize
 	 */
-	private void openLine() throws LineUnavailableException {
-
-		logger.info("Entered OpenLine()!:\n");
-
-		if (sourceDataLine != null) {
-			final AudioFormat audioFormat = audioInputStream.getFormat();
-			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : sourceDataLine.getBufferSize();
-			sourceDataLine.open(audioFormat, currentLineBufferSize);
-
-			// opened?
-			if (sourceDataLine.isOpen()) {
-				// logger.info(() -> "Open Line Buffer Size=" + bufferSize + "\n");
-
-				/*-- Display supported controls --*/
-				// Control[] c = m_line.getControls()
-
-				// Master_Gain Control?
-				if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
-					gainControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN);
-				else gainControl = null;
-
-				// PanControl?
-				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
-					panControl = (FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN);
-				else panControl = null;
-
-				// SampleRate?
-				// if (sourceDataLine.isControlSupported(FloatControl.Type.SAMPLE_RATE))
-				// sampleRateControl = (FloatControl)
-				// sourceDataLine.getControl(FloatControl.Type.SAMPLE_RATE);
-				// else
-				// sampleRateControl = null
-
-				// Mute?
-				muteControl = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
-					? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
-					: null;
-
-				// Speakers Balance?
-				balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
-					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
-					: null;
-			}
-
-		}
-
-		logger.info("Exited OpenLine()!:\n");
+	private void openLine(AudioFormat audioFormat, int currentLineBufferSize) throws LineUnavailableException {
+		outlet.open(audioFormat, currentLineBufferSize);
 	}
 
 	/**
@@ -570,6 +513,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
+	@Override
 	public void play() throws StreamPlayerException {
 		if (status == Status.STOPPED)
 			initAudioInputStream();
@@ -587,8 +531,8 @@ public class StreamPlayer implements Callable<Void> {
 		}
 
 		// Open the sourceDataLine
-		if (sourceDataLine != null && !sourceDataLine.isRunning()) {
-			sourceDataLine.start();
+		if (outlet.isStartable()) {
+			outlet.start();
 
 			// Proceed only if we have not problems
 			logger.info("Submitting new StreamPlayer Thread");
@@ -607,8 +551,9 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return true, if successful
 	 */
+	@Override
 	public boolean pause() {
-		if (sourceDataLine == null || status != Status.PLAYING)
+		if (outlet.getSourceDataLine() == null || status != Status.PLAYING)
 			return false;
 		status = Status.PAUSED;
 		logger.info("pausePlayback() completed");
@@ -622,6 +567,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * Player Status = STOPPED.<br>
 	 * Thread should free Audio resources.
 	 */
+	@Override
 	public void stop() {
 		if (status == Status.STOPPED)
 			return;
@@ -639,10 +585,11 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return False if failed(so simple...)
 	 */
+	@Override
 	public boolean resume() {
-		if (sourceDataLine == null || status != Status.PAUSED)
+		if (outlet.getSourceDataLine() == null || status != Status.PAUSED)
 			return false;
-		sourceDataLine.start();
+		outlet.start();
 		status = Status.PLAYING;
 		generateEvent(Status.RESUMED, getEncodedStreamPosition(), null);
 		logger.info("resumePlayback() completed");
@@ -700,6 +647,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @throws StreamPlayerException the stream player exception
 	 */
+	@Override
 	public long seekBytes(final long bytes) throws StreamPlayerException {
 		long totalSkipped = 0;
 
@@ -762,6 +710,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param seconds Seconds to Skip
 	 */
+	@Override
 	//todo not finished needs more validations
 	public long seekSeconds(int seconds) throws StreamPlayerException {
 		int durationInSeconds = this.getDurationInSeconds();
@@ -795,6 +744,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param seconds Seconds to Skip
 	 */
+	@Override
 	public long seekTo(int seconds) throws StreamPlayerException {
 		int durationInSeconds = this.getDurationInSeconds();
 
@@ -809,17 +759,6 @@ public class StreamPlayer implements Callable<Void> {
 		return seekBytes(bytes);
 	}
 
-//	/**
-//	 * Go to X time of the Audio
-//	 * See  {@link #seek(long)}
-//	 *
-//	 * @param pattern A string in the format (HH:MM:SS) WHERE h = HOURS , M = minutes , S = seconds
-//	 */
-//	public void seekTo(String pattern) throws StreamPlayerException {
-//		long bytes = 0;
-//
-//		seek(bytes);
-//	}
 
 	private void validateSeconds(int seconds, int durationInSeconds) {
 		if (seconds < 0) {
@@ -829,6 +768,8 @@ public class StreamPlayer implements Callable<Void> {
 		}
 	}
 
+
+	@Override
 	public int getDurationInSeconds() {
 
 		// Audio resources from file||URL||inputStream.
@@ -864,15 +805,6 @@ public class StreamPlayer implements Callable<Void> {
 			// Main play/pause loop.
 			while ((nBytesRead != -1) && status != Status.STOPPED && status != Status.NOT_SPECIFIED
 				&& status != Status.SEEKING) {
-				// if (status == Status.SEEKING) {
-				// try {
-				// System.out.println("Audio Seeking ...");
-				// Thread.sleep(50);
-				// } catch (InterruptedException e) {
-				// e.printStackTrace();
-				// }
-				// continue;
-				// }
 
 				try {
 					// Playing?
@@ -888,9 +820,9 @@ public class StreamPlayer implements Callable<Void> {
 							toRead)) != -1; toRead -= nBytesRead, totalRead += nBytesRead)
 
 							// Check for under run
-							if (sourceDataLine.available() >= sourceDataLine.getBufferSize())
-								logger.info(() -> "Underrun> Available=" + sourceDataLine.available()
-									+ " , SourceDataLineBuffer=" + sourceDataLine.getBufferSize());
+							if (outlet.getSourceDataLine().available() >= outlet.getSourceDataLine().getBufferSize())
+								logger.info(() -> "Underrun> Available=" + outlet.getSourceDataLine().available()
+									+ " , SourceDataLineBuffer=" + outlet.getSourceDataLine().getBufferSize());
 
 						// Check if anything has been read
 						if (totalRead > 0) {
@@ -904,43 +836,31 @@ public class StreamPlayer implements Callable<Void> {
 							}
 
 							// Writes audio data to the mixer via this source data line
-							sourceDataLine.write(trimBuffer, 0, totalRead);
+							outlet.getSourceDataLine().write(trimBuffer, 0, totalRead);
 
 							// Compute position in bytes in encoded stream.
 							final int nEncodedBytes = getEncodedStreamPosition();
-
-							// System.err.println(trimBuffer[0] + " , Data Length :" + trimBuffer.length)
 
 							// Notify all registered Listeners
 							listeners.forEach(listener -> {
 								if (audioInputStream instanceof PropertiesContainer) {
 									// Pass audio parameters such as instant
 									// bit rate, ...
-									listener.progress(nEncodedBytes, sourceDataLine.getMicrosecondPosition(),
+									listener.progress(nEncodedBytes, outlet.getSourceDataLine().getMicrosecondPosition(),
 										trimBuffer, ((PropertiesContainer) audioInputStream).properties());
 								} else
 									// Pass audio parameters
-									listener.progress(nEncodedBytes, sourceDataLine.getMicrosecondPosition(),
+									listener.progress(nEncodedBytes, outlet.getSourceDataLine().getMicrosecondPosition(),
 										trimBuffer, emptyMap);
 							});
 
 						}
 
 					} else if (status == Status.PAUSED) {
-
 						// Flush and stop the source data line
-						if (sourceDataLine != null && sourceDataLine.isRunning()) {
-							sourceDataLine.flush();
-							sourceDataLine.stop();
-						}
-						try {
-							while (status == Status.PAUSED) {
-								Thread.sleep(50);
-							}
-						} catch (final InterruptedException ex) {
-							Thread.currentThread().interrupt();
-							logger.warning("Thread cannot sleep.\n" + ex);
-						}
+						outlet.flushAndStop();
+						goOutOfPause();
+
 					}
 				} catch (final IOException ex) {
 					logger.log(Level.WARNING, "\"Decoder Exception: \" ", ex);
@@ -948,14 +868,8 @@ public class StreamPlayer implements Callable<Void> {
 					generateEvent(Status.STOPPED, getEncodedStreamPosition(), null);
 				}
 			}
-
 			// Free audio resources.
-			if (sourceDataLine != null) {
-				sourceDataLine.drain();
-				sourceDataLine.stop();
-				sourceDataLine.close();
-				sourceDataLine = null;
-			}
+			outlet.drainStopAndFreeDataLine();
 
 			// Close stream.
 			closeStream();
@@ -975,6 +889,17 @@ public class StreamPlayer implements Callable<Void> {
 		return null;
 	}
 
+	private void goOutOfPause() {
+		try {
+			while (status == Status.PAUSED) {
+				Thread.sleep(50);
+			}
+		} catch (final InterruptedException ex) {
+			Thread.currentThread().interrupt();
+			logger.warning("Thread cannot sleep.\n" + ex);
+		}
+	}
+
 	/**
 	 * Calculates the current position of the encoded audio based on <br>
 	 * <b>nEncodedBytes = encodedAudioLength -
@@ -982,6 +907,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Position of the encoded stream in term of bytes
 	 */
+	@Override
 	public int getEncodedStreamPosition() {
 		int position = -1;
 		if (dataSource instanceof File && encodedAudioInputStream != null)
@@ -1013,6 +939,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return -1 maximum buffer size.
 	 */
+	@Override
 	public int getLineBufferSize() {
 		return lineBufferSize;
 	}
@@ -1022,6 +949,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The current line buffer size
 	 */
+	@Override
 	public int getLineCurrentBufferSize() {
 		return currentLineBufferSize;
 	}
@@ -1031,6 +959,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return A List of available Mixers
 	 */
+	@Override
 	public List<String> getMixers() {
 		final List<String> mixers = new ArrayList<>();
 
@@ -1077,29 +1006,13 @@ public class StreamPlayer implements Callable<Void> {
 	}
 
 	/**
-	 * Check if the <b>Control</b> is Supported by m_line.
-	 *
-	 * @param control the control
-	 * @param component the component
-	 *
-	 * @return true, if successful
-	 */
-	private boolean hasControl(final Type control, final Control component) {
-		return component != null && (sourceDataLine != null) && (sourceDataLine.isControlSupported(control));
-	}
-
-	/**
 	 * Returns Gain value.
 	 *
 	 * @return The Gain Value
 	 */
+	@Override
 	public float getGainValue() {
-
-        if (hasControl(FloatControl.Type.MASTER_GAIN, gainControl)) {
-            return gainControl.getValue();
-        } else {
-            return 0.0F;
-        }
+		return outlet.getGainValue();
     }
 
 	/**
@@ -1107,8 +1020,9 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Maximum Gain Value
 	 */
+	@Override
 	public float getMaximumGain() {
-		return !hasControl(FloatControl.Type.MASTER_GAIN, gainControl) ? 0.0F : gainControl.getMaximum();
+		return !outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMaximum();
 
 	}
 
@@ -1117,9 +1031,10 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Minimum Gain Value
 	 */
+	@Override
 	public float getMinimumGain() {
 
-		return !hasControl(FloatControl.Type.MASTER_GAIN, gainControl) ? 0.0F : gainControl.getMinimum();
+		return !outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl()) ? 0.0F : outlet.getGainControl().getMinimum();
 
 	}
 
@@ -1128,8 +1043,9 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Precision Value
 	 */
+	@Override
 	public float getPrecision() {
-		return !hasControl(FloatControl.Type.PAN, panControl) ? 0.0F : panControl.getPrecision();
+		return !outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getPrecision();
 
 	}
 
@@ -1138,8 +1054,9 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Pan Value
 	 */
+	@Override
 	public float getPan() {
-		return !hasControl(FloatControl.Type.PAN, panControl) ? 0.0F : panControl.getValue();
+		return !outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getValue();
 
 	}
 
@@ -1148,8 +1065,9 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return True if muted , False if not
 	 */
+	@Override
 	public boolean getMute() {
-		return hasControl(BooleanControl.Type.MUTE, muteControl) && muteControl.getValue();
+		return outlet.hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue();
 	}
 
 	/**
@@ -1157,8 +1075,9 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Balance Value
 	 */
+	@Override
 	public float getBalance() {
-		return !hasControl(FloatControl.Type.BALANCE, balanceControl) ? 0f : balanceControl.getValue();
+		return !outlet.hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) ? 0f : outlet.getBalanceControl().getValue();
 	}
 
 	/****
@@ -1166,23 +1085,15 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return encodedAudioLength
 	 */
+	@Override
 	public long getTotalBytes() {
 		return encodedAudioLength;
 	}
 
 	/**
-	 * @return
-	 */
-	// public int getByteLength() {
-	// return audioProperties == null ||
-	// !audioProperties.containsKey("audio.length.bytes") ?
-	// AudioSystem.NOT_SPECIFIED
-	// : ((Integer) audioProperties.get("audio.length.bytes")).intValue();
-	// }
-
-	/**
 	 * @return BytePosition
 	 */
+	@Override
 	public int getPositionByte() {
 		final int positionByte = AudioSystem.NOT_SPECIFIED;
 		if (audioProperties != null) {
@@ -1194,13 +1105,9 @@ public class StreamPlayer implements Callable<Void> {
 		return positionByte;
 	}
 
-	/**
-	 * Gets the source data line.
-	 *
-	 * @return The SourceDataLine
-	 */
-	public SourceDataLine getSourceDataLine() {
-		return sourceDataLine;
+	/** The source data line. */
+	public Outlet getOutlet() {
+		return outlet;
 	}
 
 	/**
@@ -1208,6 +1115,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return The Player Status
 	 */
+	@Override
 	public Status getStatus() {
 		return status;
 	}
@@ -1232,6 +1140,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param size -1 means maximum buffer size available.
 	 */
+	@Override
 	public void setLineBufferSize(final int size) {
 		lineBufferSize = size;
 	}
@@ -1242,12 +1151,13 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param fPan the new pan
 	 */
+	@Override
 	public void setPan(final double fPan) {
 
-		if (!hasControl(FloatControl.Type.PAN, panControl) || fPan < -1.0 || fPan > 1.0)
+		if (!outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl()) || fPan < -1.0 || fPan > 1.0)
 			return;
 		logger.info(() -> "Pan : " + fPan);
-		panControl.setValue((float) fPan);
+		outlet.getPanControl().setValue((float) fPan);
 		generateEvent(Status.PAN, getEncodedStreamPosition(), null);
 
 	}
@@ -1258,16 +1168,18 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param fGain The new gain value
 	 */
+	@Override
 	public void setGain(final double fGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, gainControl)) {
+		if (isPlaying() || isPaused() && outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
             final double logScaleGain = 20 * Math.log10(fGain);
-            gainControl.setValue((float) logScaleGain);
+			outlet.getGainControl().setValue((float) logScaleGain);
         }
 	}
 
+	@Override
 	public void setLogScaleGain(final double logScaleGain) {
-		if (isPlaying() || isPaused() && hasControl(FloatControl.Type.MASTER_GAIN, gainControl)) {
-			gainControl.setValue((float) logScaleGain);
+		if (isPlaying() || isPaused() && outlet.hasControl(FloatControl.Type.MASTER_GAIN, outlet.getGainControl())) {
+			outlet.getGainControl().setValue((float) logScaleGain);
 		}
 	}
 
@@ -1276,9 +1188,10 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param mute True to mute the audio of False to unmute it
 	 */
+	@Override
 	public void setMute(final boolean mute) {
-		if (hasControl(BooleanControl.Type.MUTE, muteControl) && muteControl.getValue() != mute)
-			muteControl.setValue(mute);
+		if (outlet.hasControl(BooleanControl.Type.MUTE, outlet.getMuteControl()) && outlet.getMuteControl().getValue() != mute)
+			outlet.getMuteControl().setValue(mute);
 	}
 
 	/**
@@ -1288,9 +1201,10 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @param fBalance the new balance
 	 */
+	@Override
 	public void setBalance(final float fBalance) {
-		if (hasControl(FloatControl.Type.BALANCE, balanceControl) && fBalance >= -1.0 && fBalance <= 1.0)
-			balanceControl.setValue(fBalance);
+		if (outlet.hasControl(FloatControl.Type.BALANCE, outlet.getBalanceControl()) && fBalance >= -1.0 && fBalance <= 1.0)
+			outlet.getBalanceControl().setValue(fBalance);
 		else
 			try {
 				throw new StreamPlayerException(PlayerException.BALANCE_CONTROL_NOT_SUPPORTED);
@@ -1305,6 +1219,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param array the array
 	 * @param stop the stop
 	 */
+	@Override
 	public void setEqualizer(final float[] array, final int stop) {
 		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
 			return;
@@ -1320,6 +1235,7 @@ public class StreamPlayer implements Callable<Void> {
 	 * @param value the value
 	 * @param key the key
 	 */
+	@Override
 	public void setEqualizerKey(final float value, final int key) {
 		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
 			return;
@@ -1332,6 +1248,7 @@ public class StreamPlayer implements Callable<Void> {
 	/**
 	 * @return The Speech Factor of the Audio
 	 */
+	@Override
 	public double getSpeedFactor() {
 		return this.speedFactor;
 	}
@@ -1341,6 +1258,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return If Status==STATUS.UNKNOWN.
 	 */
+	@Override
 	public boolean isUnknown() {
 		return status == Status.NOT_SPECIFIED;
 	}
@@ -1350,6 +1268,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is playing ,<b>false</b> if not.
 	 */
+	@Override
 	public boolean isPlaying() {
 		return status == Status.PLAYING;
 	}
@@ -1359,6 +1278,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is paused ,<b>false</b> if not.
 	 */
+	@Override
 	public boolean isPaused() {
 		return status == Status.PAUSED;
 	}
@@ -1368,6 +1288,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is paused/playing,<b>false</b> if not
 	 */
+	@Override
 	public boolean isPausedOrPlaying() {
 		return isPlaying() || isPaused();
 	}
@@ -1377,6 +1298,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is stopped ,<b>false</b> if not
 	 */
+	@Override
 	public boolean isStopped() {
 		return status == Status.STOPPED;
 	}
@@ -1386,6 +1308,7 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is opened ,<b>false</b> if not
 	 */
+	@Override
 	public boolean isOpened() {
 		return status == Status.OPENED;
 	}
@@ -1395,11 +1318,17 @@ public class StreamPlayer implements Callable<Void> {
 	 *
 	 * @return <b>true</b> if player is seeking ,<b>false</b> if not
 	 */
+	@Override
 	public boolean isSeeking() {
 		return status == Status.SEEKING;
 	}
 
 	Logger getLogger() {
 		return logger;
+	}
+
+	@Override
+	public SourceDataLine getSourceDataLine() {
+		return outlet.getSourceDataLine();
 	}
 }
