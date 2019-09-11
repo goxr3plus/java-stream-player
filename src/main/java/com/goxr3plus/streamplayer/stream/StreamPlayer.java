@@ -502,26 +502,27 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 		logger.info("Entered OpenLine()!:\n");
 
-		if (outlet.getSourceDataLine() != null) {
+		final SourceDataLine sourceDataLine = outlet.getSourceDataLine();
+		if (sourceDataLine != null) {
 			final AudioFormat audioFormat = audioInputStream.getFormat();
-			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
-			outlet.getSourceDataLine().open(audioFormat, currentLineBufferSize);
+			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : sourceDataLine.getBufferSize();
+			sourceDataLine.open(audioFormat, currentLineBufferSize);
 
 			// opened?
-			if (outlet.getSourceDataLine().isOpen()) {
+			if (sourceDataLine.isOpen()) {
 				// logger.info(() -> "Open Line Buffer Size=" + bufferSize + "\n");
 
 				/*-- Display supported controls --*/
 				// Control[] c = m_line.getControls()
 
 				// Master_Gain Control?
-				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.MASTER_GAIN))
-					outlet.setGainControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.MASTER_GAIN));
+				if (sourceDataLine.isControlSupported(FloatControl.Type.MASTER_GAIN))
+					outlet.setGainControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.MASTER_GAIN));
 				else outlet.setGainControl(null);
 
 				// PanControl?
-				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.PAN))
-					outlet.setPanControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.PAN));
+				if (sourceDataLine.isControlSupported(FloatControl.Type.PAN))
+					outlet.setPanControl((FloatControl) sourceDataLine.getControl(FloatControl.Type.PAN));
 				else outlet.setPanControl(null);
 
 				// SampleRate?
@@ -532,14 +533,14 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				// sampleRateControl = null
 
 				// Mute?
-				BooleanControl muteControl1 = outlet.getSourceDataLine().isControlSupported(BooleanControl.Type.MUTE)
-					? (BooleanControl) outlet.getSourceDataLine().getControl(BooleanControl.Type.MUTE)
+				BooleanControl muteControl1 = sourceDataLine.isControlSupported(BooleanControl.Type.MUTE)
+					? (BooleanControl) sourceDataLine.getControl(BooleanControl.Type.MUTE)
 					: null;
 				outlet.setMuteControl(muteControl1);
 
 				// Speakers Balance?
-				FloatControl balanceControl = outlet.getSourceDataLine().isControlSupported(FloatControl.Type.BALANCE)
-					? (FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.BALANCE)
+				FloatControl balanceControl = sourceDataLine.isControlSupported(FloatControl.Type.BALANCE)
+					? (FloatControl) sourceDataLine.getControl(FloatControl.Type.BALANCE)
 					: null;
 				outlet.setBalanceControl(balanceControl);
 			}
@@ -630,7 +631,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	public boolean resume() {
 		if (outlet.getSourceDataLine() == null || status != Status.PAUSED)
 			return false;
-		outlet.getSourceDataLine().start();
+		outlet.start();
 		status = Status.PLAYING;
 		generateEvent(Status.RESUMED, getEncodedStreamPosition(), null);
 		logger.info("resumePlayback() completed");
@@ -857,15 +858,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 			// Main play/pause loop.
 			while ((nBytesRead != -1) && status != Status.STOPPED && status != Status.NOT_SPECIFIED
 				&& status != Status.SEEKING) {
-				// if (status == Status.SEEKING) {
-				// try {
-				// System.out.println("Audio Seeking ...");
-				// Thread.sleep(50);
-				// } catch (InterruptedException e) {
-				// e.printStackTrace();
-				// }
-				// continue;
-				// }
 
 				try {
 					// Playing?
