@@ -107,4 +107,11 @@ public class Outlet {
         }
     }
 
+    boolean isStartable() {
+        return getSourceDataLine() != null && !getSourceDataLine().isRunning();
+    }
+    void start() {
+        getSourceDataLine().start();
+    }
+
 }

@@ -572,8 +572,8 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		}
 
 		// Open the sourceDataLine
-		if (outlet.getSourceDataLine() != null && !outlet.getSourceDataLine().isRunning()) {
-			outlet.getSourceDataLine().start();
+		if (outlet.isStartable()) {
+			outlet.start();
 
 			// Proceed only if we have not problems
 			logger.info("Submitting new StreamPlayer Thread");
