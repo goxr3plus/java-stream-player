@@ -171,7 +171,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		this.streamPlayerExecutorService = streamPlayerExecutorService;
 		this.eventsExecutorService = eventsExecutorService;
 		listeners = new ArrayList<>();
-		outlet = new Outlet();
+		outlet = new Outlet(logger);
 		reset();
 	}
 
@@ -505,41 +505,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 * @param currentLineBufferSize
 	 */
 	private void openLine(AudioFormat audioFormat, int currentLineBufferSize) throws LineUnavailableException {
-
-		logger.info("Entered OpenLine()!:\n");
-
-		if (outlet.getSourceDataLine() != null) {
-			outlet.getSourceDataLine().open(audioFormat, currentLineBufferSize);
-
-			// opened?
-			if (outlet.getSourceDataLine().isOpen()) {
-
-				// Master_Gain Control?
-				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.MASTER_GAIN))
-					outlet.setGainControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.MASTER_GAIN));
-				else outlet.setGainControl(null);
-
-				// PanControl?
-				if (outlet.getSourceDataLine().isControlSupported(FloatControl.Type.PAN))
-					outlet.setPanControl((FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.PAN));
-				else outlet.setPanControl(null);
-
-				// Mute?
-				BooleanControl muteControl1 = outlet.getSourceDataLine().isControlSupported(BooleanControl.Type.MUTE)
-					? (BooleanControl) outlet.getSourceDataLine().getControl(BooleanControl.Type.MUTE)
-					: null;
-				outlet.setMuteControl(muteControl1);
-
-				// Speakers Balance?
-				FloatControl balanceControl = outlet.getSourceDataLine().isControlSupported(FloatControl.Type.BALANCE)
-					? (FloatControl) outlet.getSourceDataLine().getControl(FloatControl.Type.BALANCE)
-					: null;
-				outlet.setBalanceControl(balanceControl);
-			}
-
-		}
-
-		logger.info("Exited OpenLine()!:\n");
+		outlet.open(audioFormat, currentLineBufferSize);
 	}
 
 	/**
