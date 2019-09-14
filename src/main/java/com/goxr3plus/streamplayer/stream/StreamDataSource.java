@@ -7,12 +7,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class StreamDataSource extends DataSourceBase implements DataSource {
+public class StreamDataSource implements DataSource {
 
-    InputStream source;
+    private InputStream source;
 
     StreamDataSource(InputStream source) {
-        super(source);
         this.source = source;
     }
 
@@ -30,4 +29,19 @@ public class StreamDataSource extends DataSourceBase implements DataSource {
     public int getDurationInSeconds() {
         return -1;
     }
+
+    @Override
+    public Object getSource() {
+        return source;
+    }
+
+    @Override
+    public String toString() {
+        return "StreamDataSource with " + source.toString();
+    }
+
+    @Override
+    public boolean isFile() {
+       return false;
+   }
 }

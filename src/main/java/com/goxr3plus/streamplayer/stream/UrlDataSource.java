@@ -7,12 +7,11 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.net.URL;
 
-public class UrlDataSource extends DataSourceBase implements DataSource {
+public class UrlDataSource implements DataSource {
 
-    URL source;
+    private URL source;
 
     UrlDataSource(URL source) {
-        super(source);
         this.source = source;
     }
 
@@ -30,4 +29,19 @@ public class UrlDataSource extends DataSourceBase implements DataSource {
     public int getDurationInSeconds() {
         return -1;
     }
+
+    @Override
+    public Object getSource() {
+        return source;
+    }
+
+    @Override
+    public String toString() {
+        return "UrlDataSource with " + source.toString();
+    }
+
+    @Override
+    public boolean isFile() {
+       return false;
+   }
 }
