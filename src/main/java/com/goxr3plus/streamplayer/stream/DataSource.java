@@ -1,26 +1,16 @@
 package com.goxr3plus.streamplayer.stream;
 
-import com.goxr3plus.streamplayer.enums.AudioType;
-import com.goxr3plus.streamplayer.tools.TimeTool;
-
 import javax.naming.OperationNotSupportedException;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 
-public class DataSource {
-    protected Object source;
-
-    DataSource(Object source) {
-        this.source = source;
-    }
-
-    public static DataSource newDataSource(Object source) throws OperationNotSupportedException {
+public interface DataSource {
+    static DataSource newDataSource(Object source) throws OperationNotSupportedException {
         if (source instanceof File) {
             return new FileDataSource((File) source);
         }
@@ -33,12 +23,7 @@ public class DataSource {
         throw new OperationNotSupportedException();
     }
 
-
-
-    public Object getSource() {
-        return source;
-    }
-
+    Object getSource();
 
     /**
      * Returns a string representation of the object. In general, the
@@ -62,55 +47,13 @@ public class DataSource {
      * @return a string representation of the object.
      */
     @Override
-    public String toString() {
-        return "DataSource with " + source.toString();
-    }
+    String toString();
 
-    AudioFileFormat getAudioFileFormat() throws UnsupportedAudioFileException, IOException {
-        AudioFileFormat format = null;
-        if (source instanceof URL) {
-            format = AudioSystem.getAudioFileFormat((URL) source);
+    AudioFileFormat getAudioFileFormat() throws UnsupportedAudioFileException, IOException;
 
-        } else if (source instanceof File) {
-            format = AudioSystem.getAudioFileFormat((File) source);
+    AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException, IOException;
 
-        } else if (source instanceof InputStream) {
-            format = AudioSystem.getAudioFileFormat((InputStream) source);
-        }
-        return format;
-    }
+    int getDurationInSeconds();
 
-    AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException, IOException {
-        AudioInputStream stream = null;
-        if (source instanceof URL) {
-            stream = AudioSystem.getAudioInputStream((URL) source);
-
-        } else if (source instanceof File) {
-            stream = AudioSystem.getAudioInputStream((File) source);
-
-        } else if (source instanceof InputStream) {
-            stream = AudioSystem.getAudioInputStream((InputStream) source);
-        }
-        return stream;
-    }
-
-    public int getDurationInSeconds() {
-
-        // Audio resources from file||URL||inputStream.
-        if (source instanceof File) {
-            return TimeTool.durationInSeconds(((File) source).getAbsolutePath(), AudioType.FILE);
-        } else if (source instanceof URL) { //todo
-            return -1;
-        } else if (source instanceof InputStream) { //todo
-            return -1;
-        }
-
-        return -1;
-
-    }
-
-     boolean isFile() {
-        return source instanceof File;
-    }
-
+    boolean isFile();
 }
