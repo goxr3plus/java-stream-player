@@ -25,4 +25,9 @@ public class UrlDataSource extends DataSourceBase implements DataSource {
     public AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException, IOException {
         return AudioSystem.getAudioInputStream(source);
     }
+
+    @Override
+    public int getDurationInSeconds() {
+        return -1;
+    }
 }
