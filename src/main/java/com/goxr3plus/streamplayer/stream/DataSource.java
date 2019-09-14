@@ -1,5 +1,8 @@
 package com.goxr3plus.streamplayer.stream;
 
+import com.goxr3plus.streamplayer.enums.AudioType;
+import com.goxr3plus.streamplayer.tools.TimeTool;
+
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -73,6 +76,25 @@ public class DataSource {
             stream = AudioSystem.getAudioInputStream((InputStream) source);
         }
         return stream;
+    }
+
+    public int getDurationInSeconds() {
+
+        // Audio resources from file||URL||inputStream.
+        if (source instanceof File) {
+            return TimeTool.durationInSeconds(((File) source).getAbsolutePath(), AudioType.FILE);
+        } else if (source instanceof URL) { //todo
+            return -1;
+        } else if (source instanceof InputStream) { //todo
+            return -1;
+        }
+
+        return -1;
+
+    }
+
+     boolean isFile() {
+        return source instanceof File;
     }
 
 }

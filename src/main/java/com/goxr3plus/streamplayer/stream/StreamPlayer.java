@@ -10,10 +10,7 @@
 
 package com.goxr3plus.streamplayer.stream;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -45,10 +42,8 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import org.tritonus.share.sampled.TAudioFormat;
 import org.tritonus.share.sampled.file.TAudioFileFormat;
 
-import com.goxr3plus.streamplayer.enums.AudioType;
 import com.goxr3plus.streamplayer.enums.Status;
 import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
-import com.goxr3plus.streamplayer.tools.TimeTool;
 
 import javazoom.spi.PropertiesContainer;
 
@@ -310,7 +305,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 		logger.info("Exited initAudioInputStream\n");
 	}
-	
+
 
 	/**
 	 * Determines Properties when the File/URL/InputStream is opened.
@@ -650,7 +645,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		long totalSkipped = 0;
 
 		// If it is File
-		if (source.getSource() instanceof File) {
+		if (source.isFile()) {
 
 			// Check if the requested bytes are more than totalBytes of Audio
 			final long bytesLength = getTotalBytes();
@@ -769,18 +764,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	@Override
 	public int getDurationInSeconds() {
-
-		// Audio resources from file||URL||inputStream.
-		if (source.getSource() instanceof File) {
-			return TimeTool.durationInSeconds(((File) source.getSource()).getAbsolutePath(), AudioType.FILE);
-		} else if (source.getSource() instanceof URL) { //todo
-			return -1;
-		} else if (source.getSource() instanceof InputStream) { //todo
-			return -1;
-		}
-
-		return -1;
-
+		return source.getDurationInSeconds();
 	}
 
 	/**
@@ -908,7 +892,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public int getEncodedStreamPosition() {
 		int position = -1;
-		if (source.getSource() instanceof File && encodedAudioInputStream != null)
+		if (source.isFile() && encodedAudioInputStream != null)
 			try {
 				position = encodedAudioLength - encodedAudioInputStream.available();
 			} catch (final IOException ex) {
