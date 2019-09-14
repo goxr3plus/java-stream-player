@@ -23,7 +23,7 @@ public interface DataSource {
         throw new OperationNotSupportedException();
     }
 
-    Object getSource();
+    Object getSource(); // TODO: Try to make this method not needed.
 
     /**
      * Returns a string representation of the object. In general, the
@@ -49,11 +49,28 @@ public interface DataSource {
     @Override
     String toString();
 
+    /**
+     * @return the format of the source data
+     * @throws UnsupportedAudioFileException if the file type is unsupported
+     * @throws IOException if there is a runtime problem with IO.
+     */
     AudioFileFormat getAudioFileFormat() throws UnsupportedAudioFileException, IOException;
 
+    /**
+     * @return a stream representing the input data, regardless of source.
+     * @throws UnsupportedAudioFileException if the file type is unsupported
+     * @throws IOException if there is a runtime problem with IO.
+     */
     AudioInputStream getAudioInputStream() throws UnsupportedAudioFileException, IOException;
 
+    /**
+     * @return The duration of the source data in seconds, or -1 if duration is unavailable.
+     */
     int getDurationInSeconds();
 
+    /**
+     * @return true if the DataSource is a FileDataSource,
+     * which happens if the source used to create it is a File
+     */
     boolean isFile();
 }
