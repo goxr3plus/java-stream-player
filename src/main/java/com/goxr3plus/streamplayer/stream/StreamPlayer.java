@@ -70,7 +70,12 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	private volatile Status status = Status.NOT_SPECIFIED;
 
 	/** The data source. */
-	private Object dataSource;
+//	private Object dataSource;
+
+	/**
+	 * The data source
+	 */
+	private DataSource source;
 
 	/** The audio input stream. */
 	private volatile AudioInputStream audioInputStream;
@@ -261,7 +266,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		if (object == null)
 			return;
 
-		dataSource = object;
+		source = new DataSource(object);
 		initAudioInputStream();
 	}
 
@@ -280,21 +285,13 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 			// Notify Status
 			status = Status.OPENING;
-			generateEvent(Status.OPENING, getEncodedStreamPosition(), dataSource);
+			generateEvent(Status.OPENING, getEncodedStreamPosition(), source);
 
 			// Audio resources from file||URL||inputStream.
-			if (dataSource instanceof URL) {
-				audioInputStream = AudioSystem.getAudioInputStream((URL) dataSource);
-				audioFileFormat = AudioSystem.getAudioFileFormat((URL) dataSource);
+			audioInputStream = source.getAudioInputStream();
 
-			} else if (dataSource instanceof File) {
-				audioInputStream = AudioSystem.getAudioInputStream((File) dataSource);
-				audioFileFormat = AudioSystem.getAudioFileFormat((File) dataSource);
-
-			} else if (dataSource instanceof InputStream) {
-				audioInputStream = AudioSystem.getAudioInputStream((InputStream) dataSource);
-				audioFileFormat = AudioSystem.getAudioFileFormat((InputStream) dataSource);
-			}
+			// Audio resources from file||URL||inputStream.
+			audioFileFormat = source.getAudioFileFormat();
 
 			// Create the Line
 			createLine();
@@ -313,6 +310,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 		logger.info("Exited initAudioInputStream\n");
 	}
+	
 
 	/**
 	 * Determines Properties when the File/URL/InputStream is opened.
@@ -367,7 +365,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		final Map<String, Object> audioPropertiesCopy = audioProperties; // TODO: Remove, it's meaningless.
 
 		// Notify all registered StreamPlayerListeners
-		listeners.forEach(listener -> listener.opened(dataSource, audioPropertiesCopy));
+		listeners.forEach(listener -> listener.opened(source.getSource(), audioPropertiesCopy));
 
 		logger.info("Exited determineProperties()!\n");
 
@@ -652,7 +650,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		long totalSkipped = 0;
 
 		// If it is File
-		if (dataSource instanceof File) {
+		if (source.getSource() instanceof File) {
 
 			// Check if the requested bytes are more than totalBytes of Audio
 			final long bytesLength = getTotalBytes();
@@ -773,11 +771,11 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	public int getDurationInSeconds() {
 
 		// Audio resources from file||URL||inputStream.
-		if (dataSource instanceof File) {
-			return TimeTool.durationInSeconds(((File) dataSource).getAbsolutePath(), AudioType.FILE);
-		} else if (dataSource instanceof URL) { //todo
+		if (source.getSource() instanceof File) {
+			return TimeTool.durationInSeconds(((File) source.getSource()).getAbsolutePath(), AudioType.FILE);
+		} else if (source.getSource() instanceof URL) { //todo
 			return -1;
-		} else if (dataSource instanceof InputStream) { //todo
+		} else if (source.getSource() instanceof InputStream) { //todo
 			return -1;
 		}
 
@@ -910,7 +908,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public int getEncodedStreamPosition() {
 		int position = -1;
-		if (dataSource instanceof File && encodedAudioInputStream != null)
+		if (source.getSource() instanceof File && encodedAudioInputStream != null)
 			try {
 				position = encodedAudioLength - encodedAudioInputStream.available();
 			} catch (final IOException ex) {
