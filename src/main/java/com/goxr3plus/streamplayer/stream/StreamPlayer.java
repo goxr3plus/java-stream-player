@@ -26,6 +26,7 @@ import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.naming.OperationNotSupportedException;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -261,7 +262,12 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		if (object == null)
 			return;
 
-		source = new DataSource(object);
+		//source = new DataSource(object);
+		try {
+			source = DataSource.newDataSource(object);
+		} catch (OperationNotSupportedException e) {
+			e.printStackTrace();
+		}
 		initAudioInputStream();
 	}
 

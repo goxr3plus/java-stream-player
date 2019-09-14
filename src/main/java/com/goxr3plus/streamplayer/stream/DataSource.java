@@ -3,6 +3,7 @@ package com.goxr3plus.streamplayer.stream;
 import com.goxr3plus.streamplayer.enums.AudioType;
 import com.goxr3plus.streamplayer.tools.TimeTool;
 
+import javax.naming.OperationNotSupportedException;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
@@ -13,11 +14,26 @@ import java.io.InputStream;
 import java.net.URL;
 
 public class DataSource {
-    private Object source;
+    protected Object source;
 
     DataSource(Object source) {
         this.source = source;
     }
+
+    public static DataSource newDataSource(Object source) throws OperationNotSupportedException {
+        if (source instanceof File) {
+            return new FileDataSource((File) source);
+        }
+        if (source instanceof URL) {
+            return new UrlDataSource((URL) source);
+        }
+        if (source instanceof InputStream) {
+            return new StreamDataSource((InputStream) source);
+        }
+        throw new OperationNotSupportedException();
+    }
+
+
 
     public Object getSource() {
         return source;
