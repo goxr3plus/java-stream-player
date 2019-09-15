@@ -10,10 +10,26 @@
 
 package com.goxr3plus.streamplayer.stream;
 
-import java.io.File;
+import com.goxr3plus.streamplayer.enums.Status;
+import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
+import javazoom.spi.PropertiesContainer;
+import org.tritonus.share.sampled.TAudioFormat;
+import org.tritonus.share.sampled.file.TAudioFileFormat;
+
+import javax.naming.OperationNotSupportedException;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.BooleanControl;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.Line;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.Mixer;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -28,29 +44,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.BooleanControl;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.tritonus.share.sampled.TAudioFormat;
-import org.tritonus.share.sampled.file.TAudioFileFormat;
-
-import com.goxr3plus.streamplayer.enums.AudioType;
-import com.goxr3plus.streamplayer.enums.Status;
-import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
-import com.goxr3plus.streamplayer.tools.TimeTool;
-
-import javazoom.spi.PropertiesContainer;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under Java 10
@@ -69,8 +62,10 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	private volatile Status status = Status.NOT_SPECIFIED;
 
-	/** The data source. */
-	private Object dataSource;
+	/**
+	 * The data source
+	 */
+	private DataSource source;
 
 	/** The audio input stream. */
 	private volatile AudioInputStream audioInputStream;
@@ -261,7 +256,12 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		if (object == null)
 			return;
 
-		dataSource = object;
+		//source = new DataSource(object);
+		try {
+			source = DataSource.newDataSource(object);
+		} catch (OperationNotSupportedException e) {
+			e.printStackTrace();
+		}
 		initAudioInputStream();
 	}
 
@@ -280,21 +280,13 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 			// Notify Status
 			status = Status.OPENING;
-			generateEvent(Status.OPENING, getEncodedStreamPosition(), dataSource);
+			generateEvent(Status.OPENING, getEncodedStreamPosition(), source);
 
 			// Audio resources from file||URL||inputStream.
-			if (dataSource instanceof URL) {
-				audioInputStream = AudioSystem.getAudioInputStream((URL) dataSource);
-				audioFileFormat = AudioSystem.getAudioFileFormat((URL) dataSource);
+			audioInputStream = source.getAudioInputStream();
 
-			} else if (dataSource instanceof File) {
-				audioInputStream = AudioSystem.getAudioInputStream((File) dataSource);
-				audioFileFormat = AudioSystem.getAudioFileFormat((File) dataSource);
-
-			} else if (dataSource instanceof InputStream) {
-				audioInputStream = AudioSystem.getAudioInputStream((InputStream) dataSource);
-				audioFileFormat = AudioSystem.getAudioFileFormat((InputStream) dataSource);
-			}
+			// Audio resources from file||URL||inputStream.
+			audioFileFormat = source.getAudioFileFormat();
 
 			// Create the Line
 			createLine();
@@ -313,6 +305,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 		logger.info("Exited initAudioInputStream\n");
 	}
+
 
 	/**
 	 * Determines Properties when the File/URL/InputStream is opened.
@@ -367,7 +360,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		final Map<String, Object> audioPropertiesCopy = audioProperties; // TODO: Remove, it's meaningless.
 
 		// Notify all registered StreamPlayerListeners
-		listeners.forEach(listener -> listener.opened(dataSource, audioPropertiesCopy));
+		listeners.forEach(listener -> listener.opened(source.getSource(), audioPropertiesCopy));
 
 		logger.info("Exited determineProperties()!\n");
 
@@ -652,7 +645,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		long totalSkipped = 0;
 
 		// If it is File
-		if (dataSource instanceof File) {
+		if (source.isFile()) {
 
 			// Check if the requested bytes are more than totalBytes of Audio
 			final long bytesLength = getTotalBytes();
@@ -771,18 +764,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	@Override
 	public int getDurationInSeconds() {
-
-		// Audio resources from file||URL||inputStream.
-		if (dataSource instanceof File) {
-			return TimeTool.durationInSeconds(((File) dataSource).getAbsolutePath(), AudioType.FILE);
-		} else if (dataSource instanceof URL) { //todo
-			return -1;
-		} else if (dataSource instanceof InputStream) { //todo
-			return -1;
-		}
-
-		return -1;
-
+		return source.getDurationInSeconds();
 	}
 
 	/**
@@ -910,7 +892,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public int getEncodedStreamPosition() {
 		int position = -1;
-		if (dataSource instanceof File && encodedAudioInputStream != null)
+		if (source.isFile() && encodedAudioInputStream != null)
 			try {
 				position = encodedAudioLength - encodedAudioInputStream.available();
 			} catch (final IOException ex) {
