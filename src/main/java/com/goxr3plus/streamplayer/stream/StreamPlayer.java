@@ -81,7 +81,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	/**
 	 * It is used for synchronization in place of audioInputStream
 	 */
-	private volatile Object audioLock = new Object();
+	private final Object audioLock = new Object();
 
 	// -------------------VARIABLES---------------------
 
