@@ -29,7 +29,10 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
@@ -248,20 +251,62 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 * @param object the object [File or URL or InputStream ]
 	 *
 	 * @throws StreamPlayerException the stream player exception
+	 * @deprecated Use one of {@link #open(File)}, {@link #open(URL)} or {@link #open(InputStream)} instead.
+	 *
 	 */
 	@Override
+	@Deprecated
 	public void open(final Object object) throws StreamPlayerException {
 
 		logger.info(() -> "open(" + object + ")\n");
 		if (object == null)
 			return;
 
-		//source = new DataSource(object);
 		try {
 			source = DataSource.newDataSource(object);
 		} catch (OperationNotSupportedException e) {
 			e.printStackTrace();
 		}
+		initAudioInputStream();
+	}
+
+	/**
+	 * Open the specified file for playback.
+	 *
+	 * @param file the file to be played
+	 * @throws StreamPlayerException the stream player exception
+	 */
+	@Override
+	public void open(File file) throws StreamPlayerException {
+
+		logger.info(() -> "open(" + file + ")\n");
+		source = new FileDataSource(file);
+		initAudioInputStream();
+	}
+
+	/**
+	 * Open the specified location for playback.
+	 *
+	 * @param url the location to be played
+	 * @throws StreamPlayerException the stream player exception
+	 */
+	@Override
+	public void open(URL url) throws StreamPlayerException {
+		logger.info(() -> "open(" + url + ")\n");
+		source = new UrlDataSource(url);
+		initAudioInputStream();
+	}
+
+	/**
+	 * Open the specified stream for playback.
+	 *
+	 * @param stream the stream to be played
+	 * @throws StreamPlayerException the stream player exception
+	 */
+	@Override
+	public void open(InputStream stream) throws StreamPlayerException {
+		logger.info(() -> "open(" + stream + ")\n");
+		source = new StreamDataSource(stream);
 		initAudioInputStream();
 	}
 

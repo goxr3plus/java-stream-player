@@ -3,8 +3,10 @@ package com.goxr3plus.streamplayer.stream;
 import com.goxr3plus.streamplayer.enums.Status;
 
 import javax.sound.sampled.SourceDataLine;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public interface StreamPlayerInterface {
     /**
@@ -27,13 +29,42 @@ public interface StreamPlayerInterface {
     void removeStreamPlayerListener(StreamPlayerListener streamPlayerListener);
 
     /**
-     * Open the specific object which can be File,URL or InputStream.
+     * Open the specified object which can be File,URL or InputStream.
      *
      * @param object the object [File or URL or InputStream ]
      *
      * @throws StreamPlayerException the stream player exception
+     * @deprecated Use one of {@link #open(File)}, {@link #open(URL)} or {@link #open(InputStream)} instead.
      */
+    @Deprecated
     void open(Object object) throws StreamPlayerException;
+
+    /**
+     * Open the specified file for playback.
+     *
+     * @param file the file to be played
+     *
+     * @throws StreamPlayerException the stream player exception
+     */
+    void open(File file) throws StreamPlayerException;
+
+    /**
+     * Open the specified location for playback.
+     *
+     * @param url the location to be played
+     *
+     * @throws StreamPlayerException the stream player exception
+     */
+    void open(URL url) throws StreamPlayerException;
+
+    /**
+     * Open the specified stream for playback.
+     *
+     * @param stream the stream to be played
+     *
+     * @throws StreamPlayerException the stream player exception
+     */
+    void open(InputStream stream) throws StreamPlayerException;
 
     /**
      * Change the Speed Rate of the Audio , this variable affects the Sample Rate ,

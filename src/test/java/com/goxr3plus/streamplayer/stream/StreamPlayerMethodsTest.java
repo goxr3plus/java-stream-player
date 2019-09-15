@@ -324,7 +324,8 @@ public class StreamPlayerMethodsTest {
 
     @Test
     void open() throws StreamPlayerException {
-        player.open(null);
+        File file = null;
+        player.open(file);
 
         fail("Test not done");
     }
