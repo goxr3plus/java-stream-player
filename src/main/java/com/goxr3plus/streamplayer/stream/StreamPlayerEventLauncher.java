@@ -50,7 +50,7 @@ public class StreamPlayerEventLauncher implements Callable<String> {
     private List<StreamPlayerListener> listeners = null;
 
     /** The source. */
-    private Object source = null;
+    private StreamPlayer source = null;
 
     /**
      * Instantiates a new stream player event launcher.

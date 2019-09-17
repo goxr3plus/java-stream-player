@@ -38,7 +38,7 @@ public class StreamPlayerEvent {
     private int encodedStreamPosition = -1;
 
     /** The source. */
-    private Object source = null;
+    private StreamPlayer source = null;
 
     /** The description. */
     private Object description = null;
@@ -55,7 +55,7 @@ public class StreamPlayerEvent {
      * @param description
      *            the description
      */
-    public StreamPlayerEvent(Object source, Status status, int encodededStreamPosition, Object description) {
+    public StreamPlayerEvent(StreamPlayer source, Status status, int encodededStreamPosition, Object description) {
 	this.source = source;
 	this.playerStatus = status;
 	this.encodedStreamPosition = encodededStreamPosition;

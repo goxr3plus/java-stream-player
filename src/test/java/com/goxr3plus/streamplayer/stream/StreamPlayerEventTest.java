@@ -3,12 +3,14 @@ package com.goxr3plus.streamplayer.stream;
 import com.goxr3plus.streamplayer.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.configuration.IMockitoConfiguration;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 class StreamPlayerEventTest {
 
-    private Object source;
+    private StreamPlayer source;
     private Object description;
     private Status status;
     private int encodededStreamPosition;
@@ -17,7 +19,7 @@ class StreamPlayerEventTest {
     @BeforeEach
     void setUp() {
         description = new Object();
-        source = new Object();
+        source = mock(StreamPlayer.class);
         status = Status.RESUMED;
         encodededStreamPosition = 12345;
         event = new StreamPlayerEvent(source, status, encodededStreamPosition, description);
