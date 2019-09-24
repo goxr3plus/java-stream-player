@@ -210,9 +210,9 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	private String generateEvent(final Status status, final int encodedStreamPosition, final Object description) {
 		try {
-			return eventsExecutorService
-				.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners))
-				.get();
+			StreamPlayerEventLauncher task = new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners);
+			Future<String> submit = eventsExecutorService.submit(task);
+			return submit.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.log(Level.WARNING, "Problem in StreamPlayer generateEvent() method", ex);
 		}
@@ -570,7 +570,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 			// Proceed only if we have not problems
 			logger.info("Submitting new StreamPlayer Thread");
-			streamPlayerExecutorService.submit(this);
+			Future<Void> submit = streamPlayerExecutorService.submit(this);
 
 			// Update the status
 			status = Status.PLAYING;
