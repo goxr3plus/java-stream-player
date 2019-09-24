@@ -37,7 +37,6 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.*;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -116,11 +115,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	private final ExecutorService streamPlayerExecutorService;
 	private Future<Void> future;
 
-	/**
-	 * This executor service is used in order the playerState events to be executed
-	 * in an order
-	 */
-	private final ExecutorService eventsExecutorService;
 
 	/** Holds a list of Linteners to be notified about Stream PlayerEvents */
 	private final ArrayList<StreamPlayerListener> listeners;
@@ -150,20 +144,17 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	public StreamPlayer(Logger logger) {
 		this(logger,
-				Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayer")),
-				Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayerEvent")));
+				Executors.newSingleThreadExecutor(new ThreadFactoryWithNamePrefix("StreamPlayer")));
 	}
 
 	/**
 	 * Constructor with settable logger and executor services.
 	 * @param logger The logger that will be used by the player
 	 * @param streamPlayerExecutorService Executor service for the stream player
-	 * @param eventsExecutorService Executor service for events.
 	 */
-	public StreamPlayer(Logger logger, ExecutorService streamPlayerExecutorService, ExecutorService eventsExecutorService) {
+	public StreamPlayer(Logger logger, ExecutorService streamPlayerExecutorService) {
 		this.logger = logger;
 		this.streamPlayerExecutorService = streamPlayerExecutorService;
-		this.eventsExecutorService = eventsExecutorService;
 		listeners = new ArrayList<>();
 		outlet = new Outlet(logger);
 		reset();
@@ -206,17 +197,10 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 * @param encodedStreamPosition in the stream when the event occurs.
 	 * @param description the description
 	 *
-	 * @return A String Describing if any problem occurred
 	 */
-	private String generateEvent(final Status status, final int encodedStreamPosition, final Object description) {
-		try {
-			StreamPlayerEventLauncher task = new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners);
-			Future<String> submit = eventsExecutorService.submit(task);
-			return submit.get();
-		} catch (InterruptedException | ExecutionException ex) {
-			logger.log(Level.WARNING, "Problem in StreamPlayer generateEvent() method", ex);
-		}
-		return "Problem in StreamPlayer generateEvent() method";
+	private void  generateEvent(final Status status, final int encodedStreamPosition, final Object description) {
+		new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners).call();
+
 	}
 
 	/**
