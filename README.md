@@ -1,12 +1,18 @@
+<h3 align="center" > Java Stream Player </h3>
+<p align="center">
+🎶
+</p>
+<p align="center">
+<sup>
+<b>Java Audio Controller Library with (skip,skipTo,start,stop,pause,play,restart features)
+This is the next version of [JavaZoom BasicPlayer](http://www.javazoom.net/jlgui/api.html)" target="_blank">Download</a></b>
+</sup>
+</p>
+
 [![Latest Version](https://img.shields.io/github/release/goxr3plus/java-stream-player.svg?style=flat-square)](https://github.com/goxr3plus/java-stream-player/releases)
 [![HitCount](http://hits.dwyl.io/goxr3plus/java-stream-player.svg)](http://hits.dwyl.io/goxr3plus/java-stream-player)
 <a href="https://patreon.com/preview/8adae1b75d654b2899e04a9e1111f0eb" title="Donate to this project using Patreon"><img src="https://img.shields.io/badge/patreon-donate-yellow.svg" alt="Patreon donate button" /></a>
 <a href="https://www.paypal.me/GOXR3PLUSCOMPANY" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" /></a>
-
-
-# Java-stream-player
-Java Audio Controller Library with (skip,skipTo,start,stop,pause,play,restart features)
-This is the next version of [JavaZoom BasicPlayer](http://www.javazoom.net/jlgui/api.html)
 
 ### What audio formats it supports?
 It supports **WAV, AU, AIFF, MP3, OGG VORBIS, FLAC, MONKEY's AUDIO and SPEEX audio formats** , using some external libraries . Although more will be added in future releases.
