@@ -6,8 +6,8 @@
 </p>
 <p align="center">
 <sup>
-<b>Java Audio Controller Library with (skip,skipTo,start,stop,pause,play,restart features)
-This is the next version of [JavaZoom BasicPlayer](http://www.javazoom.net/jlgui/api.html)" target="_blank">Download</a></b>
+<b>Java Audio Controller Library with (skip,skipTo,start,stop,pause,play,restart) </b>
+<b> This is the next version of <a href="http://www.javazoom.net/jlgui/api.html" target="_blank">JavaZoom BasicPlayer</a> </b>
 </sup>
 </p>
 
