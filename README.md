@@ -19,7 +19,18 @@
 <a href="https://www.paypal.me/GOXR3PLUSCOMPANY" title="Donate to this project using Paypal"><img src="https://img.shields.io/badge/paypal-donate-yellow.svg" alt="PayPal donate button" /></a>
 
 ### What audio formats it supports?
-It supports **WAV, AU, AIFF, MP3, OGG VORBIS, FLAC, MONKEY's AUDIO and SPEEX audio formats** , using some external libraries . Although more will be added in future releases.
+- **Fully Supported ✔️**
+  - WAV
+  - MP3
+- **Partially not full tested 🚧**
+  -  OGG VORBIS
+  -  FLAC
+  -  MONKEY's AUDIO
+  -  SPEEX
+- **Not Supported Yet ❌**
+  -  AAC
+  -  THEORA
+  -  ... all the others
 
 
 ### Step 1. Add the JitPack repository to your build file
