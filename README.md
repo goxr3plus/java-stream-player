@@ -10,7 +10,7 @@ This is the next version of [JavaZoom BasicPlayer](http://www.javazoom.net/jlgui
 </sup>
 </p>
 
-
+---
 
 [![Latest Version](https://img.shields.io/github/release/goxr3plus/java-stream-player.svg?style=flat-square)](https://github.com/goxr3plus/java-stream-player/releases)
 [![HitCount](http://hits.dwyl.io/goxr3plus/java-stream-player.svg)](http://hits.dwyl.io/goxr3plus/java-stream-player)
