@@ -33,7 +33,7 @@
   -  ... all the others
 
 
-### Step 1. Add the JitPack repository to your build file
+### Step 1.  Add the JitPack repository to your build file
 https://jitpack.io/private#goxr3plus/java-stream-player
 ``` XML
 <repositories>
