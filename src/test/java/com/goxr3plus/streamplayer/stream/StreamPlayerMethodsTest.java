@@ -4,8 +4,10 @@ import com.goxr3plus.streamplayer.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.*;
 import java.io.File;
+import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -191,9 +193,11 @@ public class StreamPlayerMethodsTest {
 
     @Test
     void stopped() {
-        player.isStopped();
 
-        fail("Test not done");
+        assertFalse(player.isStopped());
+
+        player.stop();
+        assertTrue(player.isStopped());
     }
 
     @Test
@@ -225,10 +229,17 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void paused() {
-        player.isPaused();
+    void paused() throws StreamPlayerException {
+        assertFalse(player.isPaused());
 
-        fail("Test not done");
+        player.open(audioFile);
+        assertFalse(player.isPaused());
+
+        player.play();
+        assertFalse(player.isPaused());
+
+        player.pause();
+        assertTrue(player.isPaused());
     }
 
     @Test
@@ -277,10 +288,21 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void resume() {
-        player.resume();
+    void resume() throws StreamPlayerException {
+        assertFalse(player.isPlaying());
 
-        fail("Test not done");
+        player.open(audioFile);
+        assertFalse(player.isPlaying());
+
+        player.play();
+        assertTrue(player.isPlaying());
+
+        player.pause();
+        assertFalse(player.isPlaying());
+
+
+        player.resume();
+        assertTrue(player.isPlaying());
     }
 
     @Test
@@ -310,9 +332,15 @@ public class StreamPlayerMethodsTest {
         player.setPan(pan);
         assertEquals(pan, player.getPan(), delta);
 
+        // If we set the pan outside the permitted range, it will not change
+        // The permitted range is undefined.
         double outsideRange = 1.1;
         player.setPan(outsideRange);
         assertEquals(pan, player.getPan(), delta);
+
+        float precision = player.getPrecision();
+        assertNotEquals(0, precision);
+        assertEquals(3f, 1.0/precision);
     }
 
     @Test
@@ -332,14 +360,18 @@ public class StreamPlayerMethodsTest {
 
     @Test
     void mixers() {
-        player.getMixers();
-
-        fail("Test not done");
+        List<String> mixers = player.getMixers();
+        // TODO: Make this method player.getMixers() private, remove it from the interface.
+        //  There is nothing that can be done with the information outside the private scope.
     }
 
     @Test
     void seekBytes() throws StreamPlayerException {
-        player.seekBytes(0);
+        player.open(audioFile);
+        int positionByte1 = player.getPositionByte();
+
+        player.seekBytes(100);
+        int positionByte2 = player.getPositionByte();
 
         fail("Test not done");
     }
@@ -376,17 +408,22 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void precision() {
-        player.getPrecision();
+    void precision() throws StreamPlayerException {
+        assertEquals(0f, player.getPrecision());
 
-        fail("Test not done");
+        player.open(audioFile);
+        player.play();
+
+        assertNotEquals(0f, player.getPrecision());
+        // On one computer the precision = 1/128. There are no guarantees.
     }
 
     @Test
-    void opened() {
-        player.isOpened();
+    void opened() throws StreamPlayerException {
+        assertFalse(player.isOpened());
 
-        fail("Test not done");
+        player.open(audioFile);
+        assertTrue(player.isOpened());
     }
 
     @Test
@@ -404,8 +441,25 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void seekTo() throws StreamPlayerException {
-        player.seekTo(1000);
+    void seekTo() throws StreamPlayerException, IOException, UnsupportedAudioFileException {
+
+        // Some tests before we do the real tests
+        AudioFileFormat audioFileFormat = AudioSystem.getAudioFileFormat(audioFile);
+
+
+        // Setup
+        player.open(audioFile);
+        player.play();
+        player.pause();
+        int positionByte1 = player.getPositionByte();
+        assertNotEquals(AudioSystem.NOT_SPECIFIED, positionByte1, "If we cannot check the position, how can we verify seek?");
+
+        // Execute
+        player.seekTo(10);
+
+        // Verify
+        int positionByte2 = player.getPositionByte();
+        assertNotEquals(positionByte2, positionByte1);
 
         fail("Test not done");
     }
