@@ -56,34 +56,32 @@ import java.util.logging.Logger;
  */
 public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
-	/**
-	 * Class logger
-	 */
+	/** Class logger */
 	private Logger logger;
 
 	// -------------------AUDIO----------------,-----
 
 	private volatile Status status = Status.NOT_SPECIFIED;
 
-	/**
-	 * The data source
-	 */
+	/** The data source */
 	private DataSource source;
 
-	/** The audio input stream. */
-	private volatile AudioInputStream audioInputStream;
+	/** The encoded audio input stream. mp3, ogg or similar */
+	private volatile AudioInputStream encodedAudioInputStream;
 
-	/** The encoded audio input stream. */
-	private AudioInputStream encodedAudioInputStream;
+	/** Copy of the encoded audio input stream. */
+	private AudioInputStream encodedAudioInputStreamCopy;
+
+	/** The decoded audio input stream. Linear format */
+	private AudioInputStream decodedAudioInputStream;
+
 
 	/** The audio file format. */
 	private AudioFileFormat audioFileFormat;
 
 	// -------------------LOCKS---------------------
 
-	/**
-	 * It is used for synchronization in place of audioInputStream
-	 */
+	/** Used for synchronization in place of audioInputStream */
 	private final Object audioLock = new Object();
 
 	// -------------------VARIABLES---------------------
@@ -187,9 +185,8 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		outlet.flushAndFreeDataLine();
 
 		// AudioFile
-		audioInputStream = null;
 		audioFileFormat = null;
-		encodedAudioInputStream = null;
+		encodedAudioInputStreamCopy = null;
 		encodedAudioLength = -1;
 
 		// Controls
@@ -328,7 +325,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 			generateEvent(Status.OPENING, getEncodedStreamPosition(), source);
 
 			// Audio resources from file||URL||inputStream.
-			audioInputStream = source.getAudioInputStream();
+			encodedAudioInputStream = source.getAudioInputStream();
 
 			// Audio resources from file||URL||inputStream.
 			audioFileFormat = source.getAudioFileFormat();
@@ -425,13 +422,13 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 			createLine();
 		if (!outlet.getSourceDataLine().isOpen()) {
 			currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
-			openLine(audioInputStream.getFormat(), currentLineBufferSize);
+			openLine(decodedAudioInputStream.getFormat(), currentLineBufferSize);
 		} else {
-			AudioFormat format = audioInputStream == null ? null : audioInputStream.getFormat();
+			AudioFormat format = decodedAudioInputStream == null ? null : decodedAudioInputStream.getFormat();
 			if (!outlet.getSourceDataLine().getFormat().equals(format)) { // TODO: Check if bug, does equals work as intended?
 				outlet.getSourceDataLine().close();
 				currentLineBufferSize = lineBufferSize >= 0 ? lineBufferSize : outlet.getSourceDataLine().getBufferSize();
-				openLine(audioInputStream.getFormat(), currentLineBufferSize);
+				openLine(decodedAudioInputStream.getFormat(), currentLineBufferSize);
 			}
 		}
 	}
@@ -474,7 +471,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		if (outlet.getSourceDataLine() != null)
 			logger.warning("Warning Source DataLine is not null!\n");
 		else {
-			final AudioFormat sourceFormat = audioInputStream.getFormat();
+			final AudioFormat sourceFormat = encodedAudioInputStream.getFormat();
 
 			logger.info(() -> "Create Line : Source format : " + sourceFormat + "\n");
 
@@ -495,17 +492,18 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				+ "Target format: " + targetFormat + "\n");
 
 			// Keep a reference on encoded stream to progress notification.
-			encodedAudioInputStream = audioInputStream;
+			encodedAudioInputStreamCopy = encodedAudioInputStream;
 			try {
 				// Get total length in bytes of the encoded stream.
-				encodedAudioLength = encodedAudioInputStream.available();
+				encodedAudioLength = encodedAudioInputStreamCopy.available();
 			} catch (final IOException e) {
 				logger.warning("Cannot get m_encodedaudioInputStream.available()\n" + e);
 			}
 
 			// Create decoded Stream
-			audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
-			final DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, audioInputStream.getFormat(),
+			// audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream); // TODO: Remove re-assignment
+			decodedAudioInputStream = AudioSystem.getAudioInputStream(targetFormat, encodedAudioInputStream);
+			final DataLine.Info lineInfo = new DataLine.Info(SourceDataLine.class, decodedAudioInputStream.getFormat(),
 				AudioSystem.NOT_SPECIFIED);
 			if (!AudioSystem.isLineSupported(lineInfo))
 				throw new StreamPlayerException(PlayerException.LINE_NOT_SUPPORTED);
@@ -708,12 +706,12 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				synchronized (audioLock) {
 					generateEvent(Status.SEEKING, AudioSystem.NOT_SPECIFIED, null);
 					initAudioInputStream();
-					if (audioInputStream != null) {
+					if (decodedAudioInputStream != null) {
 
 						long skipped;
 						// Loop until bytes are really skipped.
 						while (totalSkipped < bytes) { // totalSkipped < (bytes-SKIP_INACCURACY_SIZE)))
-							skipped = audioInputStream.skip(bytes - totalSkipped);
+							skipped = decodedAudioInputStream.skip(bytes - totalSkipped);
 							if (skipped == 0)
 								break;
 							totalSkipped += skipped;
@@ -843,7 +841,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 						// Reads up a specified maximum number of bytes from audio stream
 						// wtf i have written here omg //to fix! cause it is complicated
-						for (; toRead > 0 && (nBytesRead = audioInputStream.read(audioDataBuffer.array(), totalRead,
+						for (; toRead > 0 && (nBytesRead = decodedAudioInputStream.read(audioDataBuffer.array(), totalRead,
 							toRead)) != -1; toRead -= nBytesRead, totalRead += nBytesRead)
 
 							// Check for under run
@@ -870,11 +868,11 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 							// Notify all registered Listeners
 							listeners.forEach(listener -> {
-								if (audioInputStream instanceof PropertiesContainer) {
+								if (decodedAudioInputStream instanceof PropertiesContainer) {
 									// Pass audio parameters such as instant
 									// bit rate, ...
 									listener.progress(nEncodedBytes, outlet.getSourceDataLine().getMicrosecondPosition(),
-										trimBuffer, ((PropertiesContainer) audioInputStream).properties());
+										trimBuffer, ((PropertiesContainer) decodedAudioInputStream).properties());
 								} else
 									// Pass audio parameters
 									listener.progress(nEncodedBytes, outlet.getSourceDataLine().getMicrosecondPosition(),
@@ -937,9 +935,9 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public int getEncodedStreamPosition() {
 		int position = -1;
-		if (source.isFile() && encodedAudioInputStream != null)
+		if (source.isFile() && encodedAudioInputStreamCopy != null)
 			try {
-				position = encodedAudioLength - encodedAudioInputStream.available();
+				position = encodedAudioLength - encodedAudioInputStreamCopy.available();
 			} catch (final IOException ex) {
 				logger.log(Level.WARNING, "Cannot get m_encodedaudioInputStream.available()", ex);
 				stop();
@@ -952,8 +950,9 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	private void closeStream() {
 		try {
-			if (audioInputStream != null) {
-				audioInputStream.close();
+			AudioInputStream stream1 = this.decodedAudioInputStream;
+			if (decodedAudioInputStream != null) { // TODO: Find out which audioInputStream or audioInputStream1 should be closed.
+				decodedAudioInputStream.close();
 				logger.info("Stream closed");
 			}
 		} catch (final IOException ex) {
@@ -1248,10 +1247,10 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public void setEqualizer(final float[] array, final int stop) {
-		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
+		if (!isPausedOrPlaying() || !(decodedAudioInputStream instanceof PropertiesContainer))
 			return;
 		// Map<?, ?> map = ((PropertiesContainer) audioInputStream).properties()
-		final float[] equalizer = (float[]) ((PropertiesContainer) audioInputStream).properties().get("mp3.equalizer");
+		final float[] equalizer = (float[]) ((PropertiesContainer) decodedAudioInputStream).properties().get("mp3.equalizer");
         if (stop >= 0) System.arraycopy(array, 0, equalizer, 0, stop);
 
 	}
@@ -1264,10 +1263,10 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public void setEqualizerKey(final float value, final int key) {
-		if (!isPausedOrPlaying() || !(audioInputStream instanceof PropertiesContainer))
+		if (!isPausedOrPlaying() || !(decodedAudioInputStream instanceof PropertiesContainer))
 			return;
 		// Map<?, ?> map = ((PropertiesContainer) audioInputStream).properties()
-		final float[] equalizer = (float[]) ((PropertiesContainer) audioInputStream).properties().get("mp3.equalizer");
+		final float[] equalizer = (float[]) ((PropertiesContainer) decodedAudioInputStream).properties().get("mp3.equalizer");
 		equalizer[key] = value;
 
 	}
