@@ -67,7 +67,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	private DataSource source;
 
 	/** The encoded audio input stream. mp3, ogg or similar */
-	private volatile AudioInputStream encodedAudioInputStream;
+	private AudioInputStream encodedAudioInputStream;
 
 	/** Copy of the encoded audio input stream. */
 	private AudioInputStream encodedAudioInputStreamCopy;
