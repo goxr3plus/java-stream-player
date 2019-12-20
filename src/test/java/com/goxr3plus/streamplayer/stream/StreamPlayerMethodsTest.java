@@ -3,15 +3,18 @@ package com.goxr3plus.streamplayer.stream;
 import com.goxr3plus.streamplayer.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 
 import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 /**
  * Tests of all or most of the public methods of StreamPlayer.
@@ -87,7 +90,7 @@ public class StreamPlayerMethodsTest {
     @Test
     void gain() throws StreamPlayerException, InterruptedException {
         // Setup
-        final double gain1 = 0.99;
+        final double gain1_dB = 0.5;
         final double gain2 = 0.2;
         final double delta = 0.05;
         final boolean listen = false;
@@ -97,8 +100,8 @@ public class StreamPlayerMethodsTest {
         player.open(audioFile);
         player.seekTo(30);
         player.play();
-        player.setGain(gain1);
-        final float actualGain1First = player.getGainValue();
+        player.setGain(gain1_dB);
+        final float actualGain0 = player.getGainValue();
         if (listen) Thread.sleep(2000);
         final float actualGain1 = player.getGainValue();
 
@@ -106,16 +109,19 @@ public class StreamPlayerMethodsTest {
         if (listen) Thread.sleep(2000);
         final float actualGain2 = player.getGainValue();
 
-        player.setGain(gain1);
+        player.setGain(gain1_dB);
         if (listen) Thread.sleep(2000);
 
         player.stop();
 
         // Verify
         assertEquals(0, initialGain);
-        assertEquals(actualGain1First, actualGain1);
-        assertEquals(gain1, actualGain1, delta);  // TODO: Investigate probable bug.
-        //  fail("Test not done");
+        assertEquals(actualGain0, actualGain1);
+        assertEquals(20.0 * Math.log10(gain1_dB), actualGain1, delta);
+
+        // TODO: Consider changing the API. setGain() and getGainValue() have different scales.
+        //  setGain(linear scale),
+        //  whereas getGainValue() returns a logarithmic dB scale value. This is inconsistent.
     }
 
     /**
@@ -185,10 +191,17 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void totalBytes() {
-        player.getTotalBytes();
+    void totalBytes() throws StreamPlayerException, InterruptedException {
+        int expectedLengthOfExampleAudioFile = 5877062;
 
-        fail("Test not done");
+
+        assertEquals(-1, player.getTotalBytes());
+
+        player.open(audioFile);
+        assertEquals(expectedLengthOfExampleAudioFile, player.getTotalBytes());
+
+        player.play();
+        assertEquals(expectedLengthOfExampleAudioFile, player.getTotalBytes());
     }
 
     @Test
@@ -213,19 +226,36 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void playing() {
-        final boolean playing = player.isPlaying();
+    void playing() throws StreamPlayerException {
 
-        assertFalse(playing);
+        assertFalse(player.isPlaying());
 
-        fail("Test not done");
+        player.open(audioFile);
+        assertFalse(player.isPlaying());
+
+        player.play();
+        assertTrue(player.isPlaying());
+
+        player.pause();
+        assertFalse(player.isPlaying());
     }
 
     @Test
-    void pausedOrPlaying() {
-        player.isPausedOrPlaying();
+    void pausedOrPlaying() throws StreamPlayerException {
 
-        fail("Test not done");
+        assertFalse(player.isPausedOrPlaying());
+
+        player.open(audioFile);
+        assertFalse(player.isPausedOrPlaying());
+
+        player.play();
+        assertTrue(player.isPausedOrPlaying());
+
+        player.pause();
+        assertTrue(player.isPausedOrPlaying());
+
+        player.stop();
+        assertFalse(player.isPausedOrPlaying());
     }
 
     @Test
@@ -243,34 +273,76 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void addStreamPlayerListener_dontAcceptNull() {
-        assertThrows(Exception.class, () -> player.addStreamPlayerListener(null));
-
-        fail("Test not done");
-    }
-
-    @Test
-    void addStreamPlayerListener() {
+    void addStreamPlayerListener() throws StreamPlayerException, InterruptedException {
+        // Setup
         final StreamPlayerListener listener = mock(StreamPlayerListener.class);
+
+        ArgumentCaptor<Object> dataSourceCaptor = ArgumentCaptor.forClass(Object.class);
+        ArgumentCaptor<Map> propertiesCaptor1 = ArgumentCaptor.forClass(Map.class);
+
+        // Execute
         player.addStreamPlayerListener(listener);
+        player.open(audioFile);
+        player.play();
+        Thread.sleep(30);
 
-        fail("Test not done");  // TODO: CHeck that the listener is actually added
+        // Verify
+        verify(listener).opened(dataSourceCaptor.capture(), propertiesCaptor1.capture());
+        Object value = dataSourceCaptor.getValue();
+        assertTrue(value instanceof File);
+
+        Map<String, Object> value11 = propertiesCaptor1.getValue();
+
+        assertTrue(value11.containsKey("basicplayer.sourcedataline"));
+
+        verify(listener, times(4)).statusUpdated(any());
+
+        verify(listener, times(1)).opened(any(), any());
+
+        verify(listener, atLeast(5)).progress(anyInt(), anyLong(), any(), any());
+        verify(listener, atMost(10)).progress(anyInt(), anyLong(), any(), any());
+
+        // TODO: Make separate tests for the different calls made to the listener
+        // TODO: Do we need to test the values passed to these methods?
+
     }
 
     @Test
-    void mute() {
-        player.getMute();
+    void mute() throws StreamPlayerException {
+        // TODO: How can mute be tested, without too much assumptions about the actual implementation?
+        //  A manual test would involve listening.
+
+
+        assertFalse(player.getMute());
+        player.open(audioFile);
+        player.play();
+        player.setMute(true);
+        assertTrue(player.getMute());
         player.setMute(false);
+        assertFalse(player.getMute());
 
-        fail("Test not done");
     }
 
     @Test
-    void speedFactor() {
-        player.getSpeedFactor();
-        player.setSpeedFactor(1000);
+    void speedFactor() throws StreamPlayerException, InterruptedException {
+        assertEquals(player.getSpeedFactor(), 1);
 
-        fail("Test not done");
+        double fast = 1;
+        player.setSpeedFactor(fast);
+        assertEquals(fast, player.getSpeedFactor());
+
+        double slow = 0.5;
+        player.open(audioFile);
+        player.play();
+        player.setSpeedFactor(slow);
+        Thread.sleep(50);
+        assertEquals(slow, player.getSpeedFactor());
+
+        // TODO: Find a way to verify that the speed factor actually works. That it can be read back is no proof.
+        //  I might be possible to play a short sequence of known length, and measure the time it takes.
+        //  But things that take time are generally not advisable in unit tests.
+
+
     }
 
     @Test
@@ -387,10 +459,18 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void lineCurrentBufferSize() {
-        player.getLineCurrentBufferSize();
+    void lineCurrentBufferSize() throws StreamPlayerException {
+        // TODO: Document the purpose of getLineCurrentBufferSize(). What is it good for?
+        //  Can it be removed? The method doesn't really return the current line buffer size,
+        //  but a cached value, which might be the same thing. Hard to say.
 
-        fail("Test not done");
+        assertEquals(-1, player.getLineCurrentBufferSize(), "Initially, the buffer size is undefined, coded as -1.");
+
+        player.open(audioFile);
+        assertEquals(-1, player.getLineCurrentBufferSize(), "After the player is opened, the buffer size is undefined");
+
+        player.play();
+        assertEquals(2 * 44100, player.getLineCurrentBufferSize(), "After the play starts, the buffer size 1 second at CD sampling rate");
     }
 
     @Test
@@ -451,17 +531,21 @@ public class StreamPlayerMethodsTest {
         player.open(audioFile);
         player.play();
         player.pause();
-        int positionByte1 = player.getPositionByte();
-        assertNotEquals(AudioSystem.NOT_SPECIFIED, positionByte1, "If we cannot check the position, how can we verify seek?");
+        int encodedStreamPosition1 = player.getEncodedStreamPosition();
 
         // Execute
         player.seekTo(10);
 
         // Verify
-        int positionByte2 = player.getPositionByte();
-        assertNotEquals(positionByte2, positionByte1);
+        int encodedStreamPosition2 = player.getEncodedStreamPosition();
+        assertTrue(encodedStreamPosition2 > encodedStreamPosition1);
 
-        fail("Test not done");
+        // Execute: go backwards
+        player.seekTo(5);
+
+        // Verify: position goes backwards
+        int encodedStreamPosition3 = player.getEncodedStreamPosition();
+        assertTrue(encodedStreamPosition3 < encodedStreamPosition2);
     }
 
     @Test
