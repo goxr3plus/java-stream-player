@@ -1067,12 +1067,18 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 
 	/**
 	 * Returns Pan precision.
+	 * <p>
+	 * Obtains the resolution or granularity of the control, in the units that the control measures.
+	 * The precision is the size of the increment between discrete valid values for this control,
+	 * over the set of supported floating-point values.
 	 *
-	 * @return The Precision Value
+	 * @return The Precision Value for the pan control, if it exists, otherwise 0.0.
 	 */
 	@Override
 	public float getPrecision() {
-		return !outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl()) ? 0.0F : outlet.getPanControl().getPrecision();
+		return !outlet.hasControl(FloatControl.Type.PAN, outlet.getPanControl())
+				? 0
+				: outlet.getPanControl().getPrecision();
 
 	}
 
