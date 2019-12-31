@@ -35,11 +35,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -994,17 +990,16 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		// audio mixers that are currently installed on the system.
 		final Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 
-		if (mixerInfos != null)
-			Arrays.stream(mixerInfos).forEach(mInfo -> {
-				// line info
-				final Line.Info lineInfo = new Line.Info(SourceDataLine.class);
-				final Mixer mixer = AudioSystem.getMixer(mInfo);
+		Arrays.stream(mixerInfos).forEach(mInfo -> {
+			// line info
+			final Line.Info lineInfo = new Line.Info(SourceDataLine.class);
+			final Mixer mixer = AudioSystem.getMixer(mInfo);
 
-				// if line supported
-				if (mixer.isLineSupported(lineInfo))
-					mixers.add(mInfo.getName());
+			// if line supported
+			if (mixer.isLineSupported(lineInfo))
+				mixers.add(mInfo.getName());
 
-			});
+		});
 
 		return mixers;
 	}
@@ -1023,7 +1018,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		// audio mixers that are currently installed on the system.
 		final Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
 
-		if (name != null && mixerInfos != null)
+		if (name != null)
             for (Mixer.Info mixerInfo : mixerInfos)
                 if (mixerInfo.getName().equals(name)) {
                     mixer = AudioSystem.getMixer(mixerInfo);
