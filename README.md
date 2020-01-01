@@ -27,7 +27,7 @@
   -  FLAC
   -  MONKEY's AUDIO
   -  SPEEX
-- **Not Supported Yet ❌**
+- **Not Supported Yet ❌** 
   -  AAC
   -  THEORA
   -  ... all the others
