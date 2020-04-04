@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.Duration;
 
 public interface DataSource {
     static DataSource newDataSource(Object source) throws OperationNotSupportedException {
@@ -67,6 +68,16 @@ public interface DataSource {
      * @return The duration of the source data in seconds, or -1 if duration is unavailable.
      */
     int getDurationInSeconds();
+    
+    /**
+     * @return The duration of the source data in milliseconds, or -1 if duration is unavailable.
+     */
+    long getDurationInMilliseconds();
+    
+    /**
+     * @return The duration of the source data in a {@code java.time.Duration} instance, or null if unavailable
+     */
+    Duration getDuration();
 
     /**
      * @return true if the DataSource is a FileDataSource,

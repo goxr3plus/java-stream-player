@@ -9,6 +9,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
 
 public class FileDataSource implements DataSource {
 
@@ -31,6 +32,16 @@ public class FileDataSource implements DataSource {
     @Override
     public int getDurationInSeconds() {
         return TimeTool.durationInSeconds(source.getAbsolutePath(), AudioType.FILE);
+    }
+    
+    @Override
+    public long getDurationInMilliseconds() {
+    	return TimeTool.durationInMilliseconds(source.getAbsolutePath(), AudioType.FILE);
+    }
+    
+    @Override
+    public Duration getDuration() {
+        return Duration.ofMillis(getDurationInMilliseconds());
     }
 
     @Override

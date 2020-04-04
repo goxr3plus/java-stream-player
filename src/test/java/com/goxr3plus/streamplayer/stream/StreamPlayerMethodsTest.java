@@ -1,20 +1,38 @@
 package com.goxr3plus.streamplayer.stream;
 
-import com.goxr3plus.streamplayer.enums.Status;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.atLeast;
+import static org.mockito.Mockito.atMost;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.SourceDataLine;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+
+import com.goxr3plus.streamplayer.enums.Status;
 
 /**
  * Tests of all or most of the public methods of StreamPlayer.
@@ -31,6 +49,28 @@ public class StreamPlayerMethodsTest {
         player = new StreamPlayer(logger);
         audioFile = new File("Logic - Ballin [Bass Boosted].mp3");
     }
+    
+    @Test
+	void duration() throws StreamPlayerException {
+		audioFile = new File("Logic - Ballin [Bass Boosted].mp3");
+		player.open(audioFile);
+		assertEquals(245, player.getDurationInSeconds());
+		assertEquals(245000, player.getDurationInMilliseconds());
+		assertNotNull(player.getDuration());
+		assertEquals(245, player.getDuration().getSeconds());
+		assertEquals(player.getDuration().toMillis(), player.getDurationInMilliseconds());
+
+		audioFile = new File("kick.wav");
+		player.open(audioFile);
+		assertEquals(0, player.getDurationInSeconds());
+		assertEquals(111, player.getDurationInMilliseconds());
+
+		audioFile = new File("kick.mp3");
+		player.open(audioFile);
+		assertEquals(0, player.getDurationInSeconds());
+		// Note: the result of calculating a .mp3's duration is different than that of a .wav file
+		assertEquals(156, player.getDurationInMilliseconds());
+	}
 
     @Test
     void balance() throws StreamPlayerException {
