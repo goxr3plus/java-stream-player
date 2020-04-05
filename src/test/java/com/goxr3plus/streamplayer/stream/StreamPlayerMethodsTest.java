@@ -618,5 +618,15 @@ public class StreamPlayerMethodsTest {
         fail("Test not done");
     }
 
+    @Test
+    void resetShouldStopPlayback() throws StreamPlayerException {
+        player.open((audioFile));
+        player.play();
+        System.out.println("play()");
+        player.reset();
+        System.out.println("reset()");
+        player.stop();
+    }
+
 
 }
