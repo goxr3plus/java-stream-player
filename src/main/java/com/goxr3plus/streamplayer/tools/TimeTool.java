@@ -8,6 +8,7 @@ import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
+import org.jaudiotagger.audio.mp3.MP3AudioHeader;
 import org.jaudiotagger.audio.mp3.MP3File;
 
 import com.goxr3plus.streamplayer.enums.AudioType;
@@ -127,6 +128,27 @@ public final class TimeTool {
 			if ("mp3".equals(extension)) {
 				try {
 					milliseconds = new MP3File(file).getMP3AudioHeader().getTrackLength() * 1000;
+					if (milliseconds == 0) {
+						MP3AudioHeader header =  new MP3File(file).getMP3AudioHeader();
+						int samplesPerFrame;
+						switch(header.getMpegLayer()) {
+						case("Layer 1"):
+							samplesPerFrame = 384;
+							break;
+						case("Layer 2"):
+							samplesPerFrame = 576;
+							break;
+						case("Layer 3"):
+							samplesPerFrame = 1152;
+							break;
+						default:
+							samplesPerFrame = 1152;
+							break;
+						}
+						
+						double frameLengthInMilliseconds =  (((double) samplesPerFrame / header.getSampleRateAsNumber()) * 1000);
+						milliseconds = (long) (header.getNumberOfFrames() * frameLengthInMilliseconds);						
+					}
 
 					// milliseconds = (int) ( (Long)
 					// AudioSystem.getAudioFileFormat(file).properties().get("duration") / 1000 );
@@ -146,7 +168,7 @@ public final class TimeTool {
 			else if ("ogg".equals(extension) || "wav".equals(extension)) {
 				try (AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(file)) {
 					final AudioFormat format = audioInputStream.getFormat();
-					milliseconds = (int) (file.length() / (format.getFrameSize() * (int) format.getFrameRate())) * 1000;
+					milliseconds = (long) (((double) file.length() / ( format.getFrameSize() * (double) format.getFrameRate())) * 1000);
 				} catch (IOException | UnsupportedAudioFileException ex) {
 					System.err.println("Problem getting the time of-> " + file.getAbsolutePath());
 				}

@@ -10,11 +10,25 @@
 
 package com.goxr3plus.streamplayer.stream;
 
-import com.goxr3plus.streamplayer.enums.Status;
-import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
-import javazoom.spi.PropertiesContainer;
-import org.tritonus.share.sampled.TAudioFormat;
-import org.tritonus.share.sampled.file.TAudioFileFormat;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.naming.OperationNotSupportedException;
 import javax.sound.sampled.AudioFileFormat;
@@ -29,20 +43,14 @@ import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.Mixer;
 import javax.sound.sampled.SourceDataLine;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.util.*;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
+import org.tritonus.share.sampled.TAudioFormat;
+import org.tritonus.share.sampled.file.TAudioFileFormat;
+
+import com.goxr3plus.streamplayer.enums.Status;
+import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
+
+import javazoom.spi.PropertiesContainer;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under Java 10
@@ -803,9 +811,29 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	}
 
 
+
+    /**
+     * @return The duration of the source data in seconds, or -1 if duration is unavailable.
+     */
 	@Override
 	public int getDurationInSeconds() {
 		return source.getDurationInSeconds();
+	}
+	
+    /**
+     * @return The duration of the source data in milliseconds, or -1 if duration is unavailable.
+     */
+	@Override
+	public long getDurationInMilliseconds() {
+		return source.getDurationInMilliseconds();
+	}
+	
+    /**
+     * @return The duration of the source data in a {@code java.time.Duration} instance, or null if unavailable
+     */
+	@Override
+	public Duration getDuration() {
+		return source.getDuration();
 	}
 
 	/**

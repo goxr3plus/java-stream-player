@@ -6,6 +6,7 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 
 public class UrlDataSource implements DataSource {
 
@@ -28,6 +29,16 @@ public class UrlDataSource implements DataSource {
     @Override
     public int getDurationInSeconds() {
         return -1;
+    }
+    
+    @Override
+    public long getDurationInMilliseconds() {
+        return -1;
+    }
+    
+    @Override
+    public Duration getDuration() {
+        return null;
     }
 
     @Override

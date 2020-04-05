@@ -6,6 +6,7 @@ import javax.sound.sampled.SourceDataLine;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.Duration;
 import java.util.List;
 
 public interface StreamPlayerInterface {
@@ -138,6 +139,10 @@ public interface StreamPlayerInterface {
     long seekTo(int seconds) throws StreamPlayerException;
 
     int getDurationInSeconds();
+    
+    long getDurationInMilliseconds();
+    
+    Duration getDuration();
 
     /**
      * Calculates the current position of the encoded audio based on <br>
