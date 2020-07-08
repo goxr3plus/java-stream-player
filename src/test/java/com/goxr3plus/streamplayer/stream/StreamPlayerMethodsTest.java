@@ -618,5 +618,21 @@ public class StreamPlayerMethodsTest {
         fail("Test not done");
     }
 
+    @Test
+    void setMixer() throws StreamPlayerException {
+        //Get all available mixers
+        List<String> mixers = player.getMixers();
+
+        //Use the last mixer (this is never the default)
+        String mixer = mixers.get(mixers.size()-1);
+
+        //Set the mixer
+        player.setMixerName(mixer);
+
+        //Create a line, this will either use the set mixer or set the name to null
+        player.open(audioFile);
+
+        assertEquals(mixer, player.getMixerName());
+    }
 
 }

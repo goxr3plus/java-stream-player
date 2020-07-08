@@ -1063,6 +1063,15 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	}
 
 	/**
+	 * Returns the name of the mixer
+	 *
+	 * @return the name of the mixer
+	 */
+	public String getMixerName(){
+		return mixerName;
+	}
+
+	/**
 	 * Returns Gain value.
 	 *
 	 * @return The Gain Value
