@@ -529,9 +529,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				outlet.setSourceDataLine((SourceDataLine) mixer.getLine(lineInfo));
 			}
 
-			//Had to comment this because it overwrites the data line we just set, thus making code above useless (this line is already run when there is no mixer name set)
-			//outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
-
 			// --------------------------------------------------------------------------------
 			logger.info(() -> "Line : " + outlet.getSourceDataLine());
 			logger.info(() -> "Line Info : " + outlet.getSourceDataLine().getLineInfo());
@@ -1057,7 +1054,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	}
 
 	/**
-	 * Set the name of the mixer to use
+	 * Set the name of the mixer to use. This should be called before opening a Line.
 	 *
 	 * @param mixerName the name
 	 */
