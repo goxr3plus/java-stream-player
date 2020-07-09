@@ -23,10 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
 
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.sound.sampled.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -618,5 +615,35 @@ public class StreamPlayerMethodsTest {
         fail("Test not done");
     }
 
+    @Test
+    void setMixer() throws StreamPlayerException {
+        //Get all available mixers
+        List<String> mixers = player.getMixers();
+
+        //Use the last mixer (this is never the default)
+        String mixerName = mixers.get(mixers.size()-1);
+
+        //Set the mixer
+        player.setMixerName(mixerName);
+
+        //Create a line, this will either use the set mixer or set the name to null
+        player.open(audioFile);
+
+        //The name of the mixers should correspond
+        assertEquals(mixerName, player.getMixerName());
+
+        //Get the mixer of the used mixerName
+        Mixer mixer = null;
+        final Mixer.Info[] mixerInfos = AudioSystem.getMixerInfo();
+        for (Mixer.Info mixerInfo : mixerInfos) {
+            if (mixerInfo.getName().equals(mixerName)) {
+                mixer = AudioSystem.getMixer(mixerInfo);
+                break;
+            }
+        }
+
+        //The mixer that is being used should be the same as the one we found
+        assertEquals(player.getCurrentMixer(), mixer);
+    }
 
 }

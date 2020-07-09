@@ -91,8 +91,11 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	private final Object audioLock = new Object();
 
 	// -------------------VARIABLES---------------------
-
+	/** Name of the mixer to use */
 	private String mixerName;
+
+	/** The current mixer */
+	private Mixer mixer = null;
 
 	/** The current line buffer size. */
 	private int currentLineBufferSize = -1;
@@ -520,7 +523,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				mixerName = getMixers().get(0);
 
 			// Continue
-			final Mixer mixer = getMixer(mixerName);
+			mixer = getMixer(mixerName);
 			if (mixer == null) {
 				outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
 				mixerName = null;
@@ -528,8 +531,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 				logger.info("Mixer: " + mixer.getMixerInfo());
 				outlet.setSourceDataLine((SourceDataLine) mixer.getLine(lineInfo));
 			}
-
-			outlet.setSourceDataLine((SourceDataLine) AudioSystem.getLine(lineInfo));
 
 			// --------------------------------------------------------------------------------
 			logger.info(() -> "Line : " + outlet.getSourceDataLine());
@@ -1052,6 +1053,33 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
                     mixer = AudioSystem.getMixer(mixerInfo);
                     break;
                 }
+		return mixer;
+	}
+
+	/**
+	 * Set the name of the mixer to use. This should be called before opening a Line.
+	 *
+	 * @param mixerName the name
+	 */
+	public void setMixerName(String mixerName) {
+		this.mixerName = mixerName;
+	}
+
+	/**
+	 * Returns the name of the mixer
+	 *
+	 * @return the name of the mixer
+	 */
+	public String getMixerName(){
+		return mixerName;
+	}
+
+	/**
+	 * Returns the mixer that is currently being used, if there is no line created this will return null
+	 *
+	 * @return The Mixer being used
+	 */
+	public Mixer getCurrentMixer(){
 		return mixer;
 	}
 

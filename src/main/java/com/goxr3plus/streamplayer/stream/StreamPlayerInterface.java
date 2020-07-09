@@ -258,6 +258,13 @@ public interface StreamPlayerInterface {
     void setLineBufferSize(int size);
 
     /**
+     * Set the name of the mixer. This should be called before opening a Line.
+     *
+     * @param mixerName the name
+     */
+    void setMixerName(String mixerName);
+
+    /**
      * Sets Pan value. Line should be opened before calling this method. Linear
      * scale : -1.0 ... +1.0
      *
