@@ -12,7 +12,7 @@
 <b> This is the next version of <a href="http://www.javazoom.net/jlgui/api.html" target="_blank">JavaZoom BasicPlayer</a> </b>
 </sup>
 </p>
-
+ 
 ---
 
 [![Latest Version](https://img.shields.io/github/release/goxr3plus/java-stream-player.svg?style=flat-square)](https://github.com/goxr3plus/java-stream-player/releases)
