@@ -5,7 +5,7 @@
 <h3 align="center" > Java Stream Player ( Library )</h3> 
 <p align="center"> 
 🎶
-</p>
+</p> 
 <p align="center">
 <sup>
 <b>Java Audio Controller Library with (skip,skipTo,start,stop,pause,play,restart) </b>
