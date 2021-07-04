@@ -2,7 +2,7 @@
 
 --- 
 
-<h3 align="center" > Java Stream Player ( Library )</h3> 
+<h3 align="center" > Java Stream Player ( Library )</h3>  
 <p align="center">  
 🎶
 </p> 
