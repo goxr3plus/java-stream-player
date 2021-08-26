@@ -13,7 +13,7 @@ import java.time.Duration;
 
 public class FileDataSource implements DataSource {
 
-    private File source;
+    private final File source;
 
     FileDataSource(File source) {
         this.source = source;

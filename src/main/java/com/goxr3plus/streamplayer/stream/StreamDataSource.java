@@ -11,7 +11,7 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public class StreamDataSource implements DataSource {
 
-    private InputStream source;
+    private final InputStream source;
 
     StreamDataSource(InputStream source) {
         this.source = source;

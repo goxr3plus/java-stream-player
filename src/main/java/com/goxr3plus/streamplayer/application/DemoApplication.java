@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public class DemoApplication extends StreamPlayer implements StreamPlayerListener {
 
-	private final String audioFileName = "Logic - Ballin [Bass Boosted].mp3";
+	private static final String AUDIO_FILE_NAME = "Logic - Ballin [Bass Boosted].mp3";
 
 
 	void start() {
@@ -29,7 +29,7 @@ public class DemoApplication extends StreamPlayer implements StreamPlayerListene
 			// open(AUDIOURL)
 
 			// Example
-			open(new File(audioFileName));
+			open(new File(AUDIO_FILE_NAME));
 
 			//Seek by bytes
 			//seekBytes(500000L);
@@ -70,7 +70,7 @@ public class DemoApplication extends StreamPlayer implements StreamPlayerListene
 
 		// .MP3 OR .WAV
 		//THE SAMPLE Audio i am using is .MP3 SO ... :)
-		String extension = getExtension(audioFileName);
+		String extension = getExtension(AUDIO_FILE_NAME);
 
 
 		long totalBytes = getTotalBytes();

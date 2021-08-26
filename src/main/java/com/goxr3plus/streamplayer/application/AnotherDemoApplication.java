@@ -1,13 +1,9 @@
 package com.goxr3plus.streamplayer.application;
 
-import com.goxr3plus.streamplayer.enums.Status;
-import com.goxr3plus.streamplayer.stream.StreamPlayer;
-import com.goxr3plus.streamplayer.stream.StreamPlayerEvent;
 import com.goxr3plus.streamplayer.stream.StreamPlayerInterface;
 import com.goxr3plus.streamplayer.stream.StreamPlayerListener;
 
 import java.io.File;
-import java.util.Map;
 
 /**
  * @author GOXR3PLUS
@@ -15,14 +11,14 @@ import java.util.Map;
  */
 public class AnotherDemoApplication  {
 
-	private final String audioFileName = "Logic - Ballin [Bass Boosted].mp3";
+	private static final String AUDIO_FILE_NAME = "Logic - Ballin [Bass Boosted].mp3";
 
-	private StreamPlayerInterface streamPlayer;
-	private StreamPlayerListener listener;
+	private final StreamPlayerInterface streamPlayer;
+	private final StreamPlayerListener listener;
 
 	public AnotherDemoApplication(StreamPlayerInterface streamPlayer) {
 		this.streamPlayer = streamPlayer;
-		this.listener = new AnotherStreamPlayerListener(audioFileName, streamPlayer);
+		this.listener = new AnotherStreamPlayerListener(AUDIO_FILE_NAME, streamPlayer);
 
 	}
 
@@ -39,7 +35,7 @@ public class AnotherDemoApplication  {
 			// open(AUDIOURL)
 
 			// Example
-			streamPlayer.open(new File(audioFileName));
+			streamPlayer.open(new File(AUDIO_FILE_NAME));
 
 			//Seek by bytes
 			//seekBytes(500000L);

@@ -11,7 +11,7 @@ import java.util.Map;
 class AnotherStreamPlayerListener implements StreamPlayerListener {
 
     private final String audioFileName;
-    private StreamPlayerInterface streamPlayer;
+    private final StreamPlayerInterface streamPlayer;
 
 
     public AnotherStreamPlayerListener(String audioFileName, StreamPlayerInterface streamPlayer) {

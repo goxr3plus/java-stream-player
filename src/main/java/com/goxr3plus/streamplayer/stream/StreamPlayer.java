@@ -63,7 +63,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	/**
 	 * Class logger
 	 */
-	private Logger logger;
+	private final Logger logger;
 
 	// -------------------AUDIO----------------,-----
 
@@ -145,7 +145,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	/**
 	 * Responsible for the output SourceDataLine and the controls that depend on it.
 	 */
-	private Outlet outlet;
+	private final Outlet outlet;
 
 	/**
 	 * Default parameter less Constructor. A default logger will be used.

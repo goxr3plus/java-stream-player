@@ -10,7 +10,7 @@ import java.time.Duration;
 
 public class UrlDataSource implements DataSource {
 
-    private URL source;
+    private final URL source;
 
     UrlDataSource(URL source) {
         this.source = source;
@@ -18,7 +18,7 @@ public class UrlDataSource implements DataSource {
 
     @Override
     public AudioFileFormat getAudioFileFormat() throws UnsupportedAudioFileException, IOException {
-        return AudioSystem.getAudioFileFormat((URL) source);
+        return AudioSystem.getAudioFileFormat(source);
     }
 
     @Override
