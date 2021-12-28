@@ -1174,21 +1174,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 		return encodedAudioLength;
 	}
 
-	/**
-	 * @return BytePosition
-	 */
-	@Override
-	public int getPositionByte() {
-		final int positionByte = AudioSystem.NOT_SPECIFIED;
-		if (audioProperties != null) {
-			if (audioProperties.containsKey("mp3.position.byte"))
-				return (Integer) audioProperties.get("mp3.position.byte");
-			if (audioProperties.containsKey("ogg.position.byte"))
-				return (Integer) audioProperties.get("ogg.position.byte");
-		}
-		return positionByte;
-	}
-
 	/** The source data line. */
 	public Outlet getOutlet() {
 		return outlet;
