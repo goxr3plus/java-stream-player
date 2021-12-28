@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -237,6 +238,10 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	 */
 	@Override
 	public void addStreamPlayerListener(final StreamPlayerListener streamPlayerListener) {
+
+		Objects.requireNonNull(streamPlayerListener,
+				"null is not allowed as StreamPlayerListener value.");
+
 		listeners.add(streamPlayerListener);
 	}
 

@@ -38,11 +38,13 @@ public class StreamPlayerFutureImprovementTest {
      */
     @Test
     void addStreamPlayerListener_dontAcceptNull() {
-        // Currently, we can add a null to the list of stream player listeners.
-        // Should that really be allowed?
-        assertThrows(Exception.class, () -> player.addStreamPlayerListener(null));
+        // We can't allow nulls in the list of listeners, because they will cause NullPointerExceptions.
+        // One way to handle it is to require that an exception is thrown immediately when we
+        // try to add the null.
+        assertThrows(NullPointerException.class, () -> player.addStreamPlayerListener(null));
 
-        fail("Test not done");
+        // An alternative way would be to use some kind of null annotation, to disallow
+        // nulls being passed at compile time.
     }
 
 
