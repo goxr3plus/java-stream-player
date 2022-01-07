@@ -55,21 +55,4 @@ public class StreamPlayerFutureImprovementTest {
         assertThrows(Exception.class, () -> player.play());
     }
 
-    @Test
-    void seekBytes() throws StreamPlayerException {
-        player.open(audioFile);
-        player.play();
-        int positionByte1 = player.getPositionByte();
-
-        player.seekBytes(100);
-        int positionByte2 = player.getPositionByte();
-
-        assertTrue( positionByte2 > positionByte1);
-
-        // TODO: It seems that getPositionByte doesn't work.
-        //  It isn't called from within this project, except for in this test.
-        //  It is however called by XR3Player. If XR3Player needs this method, it must be tested
-        //  within this project. The method relies on a map, which doesn't seem to be updated by play()
-    }
-
 }

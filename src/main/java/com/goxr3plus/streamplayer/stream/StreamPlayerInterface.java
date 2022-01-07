@@ -231,11 +231,6 @@ public interface StreamPlayerInterface {
     long getTotalBytes();
 
     /**
-     * @return BytePosition
-     */
-    int getPositionByte();
-
-    /**
      * Gets the source data line.
      *
      * @return The SourceDataLine

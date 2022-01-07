@@ -541,13 +541,6 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
-    void positionByte() {
-        player.getPositionByte();
-
-        fail("Test not done");
-    }
-
-    @Test
     void precision() throws StreamPlayerException {
         assertEquals(0f, player.getPrecision());
 
