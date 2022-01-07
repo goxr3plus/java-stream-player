@@ -1,5 +1,6 @@
 package com.goxr3plus.streamplayer.stream;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -11,8 +12,18 @@ import static org.mockito.Mockito.*;
 
 class StreamPlayerTest {
 
+    /**
+     * This test was written to demonstrate some testing techniques.
+     * As it is now, it's not deterministic. It passes sometimes and fails sometimes. Such test
+     * is not acceptable in a test suite that must always pass. Therefore it's disabled
+     * but kept, so that the test (and the production code) can be improved and then enabled.
+     *
+     * When the test is improved such that it is worthy of production code, it should be renamed
+     * with it's new purpose.
+     */
     @Test
     @DisplayName("Demonstration of spying")
+    @Disabled("This test is unreliable. It fails sometimes, for a reason that is hard to understand.")
     void demonstrationOfSpying() throws StreamPlayerException {
 
         // By using a mocked logger instead of a real one, we get rid of annoying logging messages in the unit test.

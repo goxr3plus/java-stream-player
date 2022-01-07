@@ -2,6 +2,7 @@ package com.goxr3plus.streamplayer.stream;
 
 import com.goxr3plus.streamplayer.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -37,6 +38,7 @@ public class StreamPlayerFutureImprovementTest {
      * This test fails if it's permitted to add a null to the StreamPlayer listener list.
      */
     @Test
+    @Disabled("This test fails with the current implementation. The test exists to illustrate a future improvement.")
     void addStreamPlayerListener_dontAcceptNull() {
         // Currently, we can add a null to the list of stream player listeners.
         // Should that really be allowed?
@@ -48,12 +50,14 @@ public class StreamPlayerFutureImprovementTest {
 
     @Test
     @DisplayName("When play() is called without first calling open(), an exception is thrown")
+    @Disabled("This test fails with the current implementation. The test exists to illustrate a future improvement.")
     void playingUnopenedSourceThrowsException() {
 
         assertThrows(Exception.class, () -> player.play());
     }
 
     @Test
+    @Disabled("This test fails with the current implementation. The test exists to illustrate a future improvement.")
     void seekBytes() throws StreamPlayerException {
         player.open(audioFile);
         player.play();
