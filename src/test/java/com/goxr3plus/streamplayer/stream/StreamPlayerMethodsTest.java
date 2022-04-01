@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import javax.sound.sampled.*;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
@@ -130,6 +131,10 @@ public class StreamPlayerMethodsTest {
         final double gain1_dB = 0.5;
         final double gain2 = 0.2;
         final double delta = 0.05;
+
+        // By setting listen to true, you an listen to the musig being played,
+        // and hear that the gain changes.
+        // This is totally against the rules for unit testing, but can be useful.
         final boolean listen = false;
 
         // Exercise
@@ -512,6 +517,7 @@ public class StreamPlayerMethodsTest {
     // TODO: Consider each of the tested methods below, to see if they can be removed from StreamPlayer.
 
     @Test
+    @Disabled("This test is a placeholder for a suggested future test to be written.")
     void lineBufferSize() {
         player.getLineBufferSize();
         player.setLineBufferSize(0);
@@ -534,6 +540,7 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
+    @Disabled("This test is a placeholder for a suggested future test to be written.")
     void minimumGain() {
         player.getMinimumGain();
 
@@ -541,6 +548,7 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
+    @Disabled("This test is a placeholder for a suggested future test to be written.")
     void positionByte() {
         player.getPositionByte();
 
@@ -567,6 +575,7 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
+    @Disabled("This test is a placeholder for a suggested future test to be written.")
     void seeking() {
         player.isSeeking();
 
@@ -574,6 +583,7 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
+    @Disabled("This test is a placeholder for a suggested future test to be written.")
     void removeStreamPlayerListener() {
         player.removeStreamPlayerListener(null);
 
@@ -609,6 +619,7 @@ public class StreamPlayerMethodsTest {
     }
 
     @Test
+    @Disabled("This test is a placeholder for a suggested future test to be written.")
     void equalizerKey() {
         player.setEqualizerKey(0, 0);
 
