@@ -22,12 +22,12 @@
  */
 package com.goxr3plus.streamplayer.stream;
 
+import com.goxr3plus.streamplayer.enums.Status;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import com.goxr3plus.streamplayer.enums.Status;
 
 /**
  * The Class StreamPlayerEventLauncher.
@@ -50,29 +50,26 @@ public class StreamPlayerEventLauncher implements Callable<String> {
     private List<StreamPlayerListener> listeners = null;
 
     /** The source. */
-    private StreamPlayer source = null;
+    private StreamPlayerInterface source = null;
 
     /**
      * Instantiates a new stream player event launcher.
-     * 
-     * @param source
-     *            the source
-     * @param playerStatus
-     *            the play state
-     * @param encodedStreamPosition
-     *            the stream position
-     * @param description
-     *            the description
-     * @param listeners
+     *
+     * @param source                the source
+     * @param playerStatus          the play state
+     * @param encodedStreamPosition the stream position
+     * @param description           the description
+     * @param listeners             will be called when events happens
+     * @param logger                Logger to use for logging
      */
-    public StreamPlayerEventLauncher(StreamPlayer source, Status playerStatus, int encodedStreamPosition, Object description,
-                                     List<StreamPlayerListener> listeners) {
+    public StreamPlayerEventLauncher(StreamPlayerInterface source, Status playerStatus, int encodedStreamPosition, Object description,
+                                     List<StreamPlayerListener> listeners, Logger logger) {
 	this.source = source;
 	this.playerState = playerStatus;
 	this.encodedStreamPosition = encodedStreamPosition;
 	this.description = description;
 	this.listeners = listeners;
-    this.logger = source.getLogger();
+    this.logger = logger;
     }
 
     @Override
@@ -80,7 +77,7 @@ public class StreamPlayerEventLauncher implements Callable<String> {
 	// Notify all the listeners that the state has been updated
 	if (listeners != null) {
 	    listeners.forEach(listener -> listener
-		    .statusUpdated(new StreamPlayerEvent(source, playerState, encodedStreamPosition, description)));
+		    .statusUpdated(new StreamPlayerEvent(playerState, encodedStreamPosition, description)));
 	}
 	logger.log(Level.INFO, "Stream player Status -> " + playerState);
 	return "OK";

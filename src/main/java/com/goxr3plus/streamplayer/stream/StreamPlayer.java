@@ -223,7 +223,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	private String generateEvent(final Status status, final int encodedStreamPosition, final Object description) {
 		try {
 			return eventsExecutorService
-				.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners))
+				.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners, logger))
 				.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.log(Level.WARNING, "Problem in StreamPlayer generateEvent() method", ex);
@@ -1410,10 +1410,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public boolean isSeeking() {
 		return status == Status.SEEKING;
-	}
-
-	Logger getLogger() {
-		return logger;
 	}
 
 	@Override
