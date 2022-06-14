@@ -37,17 +37,12 @@ public class StreamPlayerEvent {
     /** The stream position. */
     private int encodedStreamPosition = -1;
 
-    /** The source. */
-    private StreamPlayer source = null;
-
     /** The description. */
     private Object description = null;
 
     /**
      * Constructor.
      *
-     * @param source
-     *            the source
      * @param status
      *            the status
      * @param encodededStreamPosition
@@ -55,9 +50,8 @@ public class StreamPlayerEvent {
      * @param description
      *            the description
      */
-    public StreamPlayerEvent(StreamPlayer source, Status status, int encodededStreamPosition, Object description) {
-	this.source = source;
-	this.playerStatus = status;
+    public StreamPlayerEvent(Status status, int encodededStreamPosition, Object description) {
+        this.playerStatus = status;
 	this.encodedStreamPosition = encodededStreamPosition;
 	this.description = description;
     }
@@ -91,18 +85,9 @@ public class StreamPlayerEvent {
 	return description;
     }
 
-    /**
-     * Gets the source.
-     *
-     * @return the source 
-     */
-    public Object getSource() {
-	return source;
-    }
-
     @Override
     public String toString() {
-	return "Source :=" + source + " , Player Status := " + playerStatus + " , EncodedStreamPosition :="
+	return "Player Status := " + playerStatus + " , EncodedStreamPosition :="
 		+ encodedStreamPosition + " , Description :=" + description;
 
     }

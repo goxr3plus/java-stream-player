@@ -3,26 +3,23 @@ package com.goxr3plus.streamplayer.stream;
 import com.goxr3plus.streamplayer.enums.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.configuration.IMockitoConfiguration;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 class StreamPlayerEventTest {
 
-    private StreamPlayer source;
     private Object description;
     private Status status;
-    private int encodededStreamPosition;
+    private int encodedStreamPosition;
     private StreamPlayerEvent event;
 
     @BeforeEach
     void setUp() {
         description = new Object();
-        source = mock(StreamPlayer.class);
         status = Status.RESUMED;
-        encodededStreamPosition = 12345;
-        event = new StreamPlayerEvent(source, status, encodededStreamPosition, description);
+        encodedStreamPosition = 12345;
+        event = new StreamPlayerEvent(status, encodedStreamPosition, description);
     }
 
     @Test
@@ -32,12 +29,7 @@ class StreamPlayerEventTest {
 
     @Test
     void itReturnsTheEncodedStreamPosition() {
-        assertEquals(encodededStreamPosition, event.getEncodedStreamPosition());
-    }
-
-    @Test
-    void itReturnsTheSource() {
-        assertSame(source, event.getSource());
+        assertEquals(encodedStreamPosition, event.getEncodedStreamPosition());
     }
 
     @Test
@@ -48,12 +40,8 @@ class StreamPlayerEventTest {
     @Test
     void itReturnsAString() {
         final String actual = event.toString();
-        final String expected = "Source :="
-                + source.toString()
-                + " , Player Status := RESUMED , EncodedStreamPosition :=12345 , Description :="
+        final String expected = "Player Status := RESUMED , EncodedStreamPosition :=12345 , Description :="
                 + description.toString();
         assertEquals(expected, actual);
     }
-
-
 }
