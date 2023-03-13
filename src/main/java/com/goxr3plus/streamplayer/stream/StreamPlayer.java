@@ -10,6 +10,14 @@
 
 package com.goxr3plus.streamplayer.stream;
 
+import com.goxr3plus.streamplayer.enums.Status;
+import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
+import javazoom.spi.PropertiesContainer;
+import org.tritonus.share.sampled.TAudioFormat;
+import org.tritonus.share.sampled.file.TAudioFileFormat;
+
+import javax.naming.OperationNotSupportedException;
+import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,41 +25,10 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.naming.OperationNotSupportedException;
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.BooleanControl;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.tritonus.share.sampled.TAudioFormat;
-import org.tritonus.share.sampled.file.TAudioFileFormat;
-
-import com.goxr3plus.streamplayer.enums.Status;
-import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
-
-import javazoom.spi.PropertiesContainer;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under Java 10
@@ -275,7 +252,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 			return;
 
 		try {
-			source = DataSource.newDataSource(object);
+			source = DataSourceFactory.newDataSource(object);
 		} catch (OperationNotSupportedException e) {
 			e.printStackTrace();
 		}

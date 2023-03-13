@@ -1,28 +1,12 @@
 package com.goxr3plus.streamplayer.stream;
 
-import javax.naming.OperationNotSupportedException;
 import javax.sound.sampled.AudioFileFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.UnsupportedAudioFileException;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.time.Duration;
 
 public interface DataSource {
-    static DataSource newDataSource(Object source) throws OperationNotSupportedException {
-        if (source instanceof File) {
-            return new FileDataSource((File) source);
-        }
-        if (source instanceof URL) {
-            return new UrlDataSource((URL) source);
-        }
-        if (source instanceof InputStream) {
-            return new StreamDataSource((InputStream) source);
-        }
-        throw new OperationNotSupportedException();
-    }
 
     Object getSource(); // TODO: Try to make this method not needed.
 
