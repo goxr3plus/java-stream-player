@@ -10,6 +10,14 @@
 
 package com.goxr3plus.streamplayer.stream;
 
+import com.goxr3plus.streamplayer.enums.Status;
+import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
+import javazoom.spi.PropertiesContainer;
+import org.tritonus.share.sampled.TAudioFormat;
+import org.tritonus.share.sampled.file.TAudioFileFormat;
+
+import javax.naming.OperationNotSupportedException;
+import javax.sound.sampled.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,28 +38,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import javax.naming.OperationNotSupportedException;
-import javax.sound.sampled.AudioFileFormat;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.BooleanControl;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.FloatControl;
-import javax.sound.sampled.Line;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.Mixer;
-import javax.sound.sampled.SourceDataLine;
-import javax.sound.sampled.UnsupportedAudioFileException;
-
-import org.tritonus.share.sampled.TAudioFormat;
-import org.tritonus.share.sampled.file.TAudioFileFormat;
-
-import com.goxr3plus.streamplayer.enums.Status;
-import com.goxr3plus.streamplayer.stream.StreamPlayerException.PlayerException;
-
-import javazoom.spi.PropertiesContainer;
 
 /**
  * StreamPlayer is a class based on JavaSound API. It has been successfully tested under Java 10
@@ -223,7 +209,7 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	private String generateEvent(final Status status, final int encodedStreamPosition, final Object description) {
 		try {
 			return eventsExecutorService
-				.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners))
+				.submit(new StreamPlayerEventLauncher(this, status, encodedStreamPosition, description, listeners, logger))
 				.get();
 		} catch (InterruptedException | ExecutionException ex) {
 			logger.log(Level.WARNING, "Problem in StreamPlayer generateEvent() method", ex);
@@ -1410,10 +1396,6 @@ public class StreamPlayer implements StreamPlayerInterface, Callable<Void> {
 	@Override
 	public boolean isSeeking() {
 		return status == Status.SEEKING;
-	}
-
-	Logger getLogger() {
-		return logger;
 	}
 
 	@Override
