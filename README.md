@@ -1,3 +1,37 @@
+# Fork
+This is a fork of [goxr3plus/java-stream-player](https://github.com/goxr3plus/java-stream-player). No code chagnes were made. It is identical except for the following:
+1. Upstream pushes artifacts to jitpack.io, which has proven very unreliable. This fork builds without any reliance on jitpack.io.
+2. Upstream forked net.jthink.jaudiotagger 2.2.7 to make it easier to build with maven. I eliminated the usage of that fork as net.jthink.jaudiotagger 3.0.0 already successfully builds with maven and uploads to maven central.
+3. Eliminated unit tests as the paths to the test mp3 files wasn't working on Github workflows. Not worth troubleshooting.
+4. Eliminated javadoc step because the default config now fails on undocumented variables of which this project has many.
+
+Builds of this repo do not push to a central maven repository. It is expected that users who need this fork as a dependency will instead build it from source during their app's build.
+
+Upstream usage:
+```
+<repositories>
+    <repository>
+       <id>jitpack.io</id>
+       <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
+<dependency>
+   <groupId>com.github.goxr3plus</groupId>
+   <artifactId>java-stream-player</artifactId>
+   <version>10.0.0</version>
+</dependency>
+```
+
+Now becomes this with the fork:
+```
+<dependency>
+   <groupId>fun-o-form</groupId>
+   <artifactId>java-stream-player-fork</artifactId>
+   <version>10.0.0</version>
+</dependency>
+```
+
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/Q5Q3WBIC)
 
 ---  
